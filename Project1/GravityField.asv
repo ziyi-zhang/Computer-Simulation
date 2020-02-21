@@ -6,7 +6,7 @@ M = [1e10, 5e9, 7e9, 1e8]; % Mass
 L = [0, 1e4, -1e4, 0;
      0, 0, 0, 1e4]; % Location 2*N
 V = [0, 0, 0, 0;
-     0, 0.2*sqrt(G*M(1)/L(1, 2)), -0.3*sqrt(G*M(1)/L(1, 2)), 0]; % Velocity 2*N
+     0, sqrt(G*M(1)/L(1, 2)), -sqrt(G*M(1)/L(1, 2)), 0]; % Velocity 2*N
 N = length(M);
 % simulation parameters
 tmax = 365.25 * 24 * 60 * 60;
@@ -48,10 +48,9 @@ subplot(1, 2, 2)
 hold on
 hfield = surf(surfX, surfY, zeros(length(surfX), length(surfY)), 'FaceColor', 'flat', 'EdgeAlpha', 0.1);
 for i = 1:N
-    hfieldmass(i) = scatter3(L(1, i), L(2, i), 0, 40, c(i, :), 'filled', 'MarkerEdgeColor', 'b');
+    hfieldmass(i) = scatter3(L(1, i), L(2, i), 0, 20, c(i, :), 'filled', 'MarkerEdgeColor', 'b');
 end
 hold off
-view(3)
 
 
 % simulation starts here
@@ -101,22 +100,22 @@ for clock = 1:clockmax
             end
         end
     end
-    Z = -g2s(gradient_(:,:,1), gradient_(:,:,2), XArr', YArr');
-    ZMax = quantile(Z(:), 0.95);
-    Z(Z>ZMax) = ZMax;
-    ZMin = quantile(Z(:), 0.05);
-    Z(Z<ZMin) = ZMin;
-    set(hfield, 'zdata', Z); % update field
-    massZ = calcZ(Z, L, XArr, YArr);
+    Z = g2s(gradient_(:,:,1), gradient_(:,:,2), XArr', YArr');
+    ZMax = quantile(Z(), 0.95);
+    Z(Z>Max) = ZMax;
+    ZMin = quantile(Z, 0.05);
+    Z(Z<Zmin) = Zmin;
+    set(hfield, 'zdata', -Z); % update field
+    massZ = calcZ(Z, L);
     for i = 1:N
-        set(hfieldmass(i), 'xdata', L(1, i), 'ydata', L(2, i), 'zdata', massZ(i));
+        set(hfieldmass(i), 'xdata', L(1, i), 'ydata', L(2, i), 'zdata', 80);
     end
     % draw now
     drawnow
     subplot(1, 2, 1)
     xlim([axisXMin, axisXMax]);
     ylim([axisYMin, axisYMax]);
-    pause(0.01);
+    % pause(0.01);
 end
 
 
@@ -133,25 +132,8 @@ function [R] = calcR(L)
 end
 
 
-function [massZ] = calcZ(Z, L, XArr, YArr)
+function [massZ] = calcZ(Z, L)
     
-    massZ = zeros(1, size(L, 2));
-    for i = 1:size(L, 2)
-        xx = 1;
-        yy = 1;
-        for j = 1:length(XArr)
-            if XArr(j)>L(1, i)
-               xx = j;
-               break;
-            end
-        end
-        for j = 1:length(YArr)
-            if YArr(j)<L(2, i)
-               yy = j;
-               break;
-            end
-        end
-        massZ(i) = Z(yy, xx) + 40;
-    end
+    massZ = 0;
 end
 
