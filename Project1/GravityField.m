@@ -1,23 +1,27 @@
 % gravity field test
-% Constants
-G = 6.674e-8;
+
 % N-body initialization
-M = [1e10, 5e9, 7e9, 1e8]; % Mass
-L = [0, 1e4, -1e4, 0;
-     0, 0, 0, 1e4]; % Location 2*N
-V = [0, 0, 0, 0;
-     0, 0.2*sqrt(G*M(1)/L(1, 2)), -0.3*sqrt(G*M(1)/L(1, 2)), 0]; % Velocity 2*N
+M = [1.5, 2, 3]; % Mass
+L = [-2, 2, 0;
+     2, 3, -3]; % Location 2*N
+V = [0, 0, 0;
+     0, 0, 0]; % Velocity 2*N
 N = length(M);
+% Constants
+%R0 = calcR(L) ./ 4;
+R0_ = 4;
+R0 = ones(N, N) .* R0_;
+S = ones(N, N);
 % simulation parameters
-tmax = 365.25 * 24 * 60 * 60;
-clockmax = 1e5;
+tmax = 200 * 24 * 60 * 60;
+clockmax = 1e9;
 dt = tmax / clockmax;
 % visualization parameters
 c = [0, 0, 1;
      0.4, 0.8, 0.5;
      0.8, 0, 0.5;
      0.9, 0.4, 0];
-dequeSize = 50;
+dequeSize = 150;
 XHist = ones(N, dequeSize) .* L(1, :)';
 YHist = ones(N, dequeSize) .* L(2, :)';
 dequePtr = 1; % deque to show trace
@@ -27,11 +31,11 @@ axisXMax = max(L(1, :)) + 0.2*(max(L(1, :))-min(L(1, :)));
 axisYMin = min(L(2, :)) - 0.2*(max(L(2, :))-min(L(2, :)));
 axisYMax = max(L(2, :)) + 0.2*(max(L(2, :))-min(L(2, :)));
 %}
-axisXMin = -1.2 * max(L, [], 'all');
-axisXMax =  1.2 * max(L, [], 'all');
-axisYMin = -1.2 * max(L, [], 'all');
-axisYMax =  1.2 * max(L, [], 'all');
-fieldResolution = 100;
+axisXMin = -1.5 * max(L, [], 'all');
+axisXMax =  1.5 * max(L, [], 'all');
+axisYMin = -1.5 * max(L, [], 'all');
+axisYMax =  1.5 * max(L, [], 'all');
+fieldResolution = 50;
 axisXSpace = (axisXMax - axisXMin) / (fieldResolution-1);
 axisYSpace = (axisYMax - axisYMin) / (fieldResolution-1);
 [surfX, surfY] = meshgrid(axisXMin:axisXSpace:axisXMax, axisYMax:-axisYSpace:axisYMin);
@@ -59,13 +63,14 @@ for clock = 1:clockmax
 
     t = clock * dt;
     R = calcR(L);
+    T = calcT(R, R0, S);
     for i = 1:N % now updating the velocity of i-th object
         
         a = zeros(2, 1);
         for j = 1:N
         
             if (i==j), continue;end
-            a = a + G .* M(j) .* (L(:, j) - L(:, i)) ./ R(i, j)^3;
+            a = a + T(i, j) .* (L(:, j) - L(:, i)) ./ R(i, j) ./ M(i);
         end
         % update velocity
         V(:, i) = V(:, i) + a .* dt;
@@ -95,9 +100,8 @@ for clock = 1:clockmax
 
                 p = [XArr(j); YArr(i)]; % position of probe
                 r = norm(L(:, k) - p);
-                if r<100, r=100;end % WARNING
-                gradient_(i, j, 1) = gradient_(i, j, 1) + G * M(k) / r^2 * (L(1, k) - p(1));
-                gradient_(i, j, 2) = gradient_(i, j, 2) + G * M(k) / r^2 * (L(2, k) - p(2));
+                gradient_(i, j, 1) = gradient_(i, j, 1) + 1 * (r - R0_) * (L(1, k) - p(1)) / r;
+                gradient_(i, j, 2) = gradient_(i, j, 2) + 1 * (r - R0_) * (L(2, k) - p(2)) / r;
             end
         end
     end
@@ -151,7 +155,12 @@ function [massZ] = calcZ(Z, L, XArr, YArr)
                break;
             end
         end
-        massZ(i) = Z(yy, xx) + 40;
+        massZ(i) = Z(yy, xx) + 0.2;
     end
 end
 
+
+function [T] = calcT(R, R0, S)
+
+    T = S .* (R - R0);
+end
