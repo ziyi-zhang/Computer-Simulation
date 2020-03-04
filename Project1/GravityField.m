@@ -1,21 +1,6 @@
-% gravity field test
+% spring system with gravity field
 
-% N-body initialization
-M = [1.5, 2, 3]; % Mass
-L = [-2, 2, 0;
-     2, 3, -3]; % Location 2*N
-V = [0, 0, 0;
-     0, 0, 0]; % Velocity 2*N
-N = length(M);
-% Constants
-%R0 = calcR(L) ./ 4;
-R0_ = 4;
-R0 = ones(N, N) .* R0_;
-S = ones(N, N);
-% simulation parameters
-tmax = 200 * 24 * 60 * 60;
-clockmax = 1e9;
-dt = tmax / clockmax;
+%{
 % visualization parameters
 c = [0, 0, 1;
      0.4, 0.8, 0.5;
@@ -26,10 +11,7 @@ XHist = ones(N, dequeSize) .* L(1, :)';
 YHist = ones(N, dequeSize) .* L(2, :)';
 dequePtr = 1; % deque to show trace
 %{
-axisXMin = min(L(1, :)) - 0.2*(max(L(1, :))-min(L(1, :)));
-axisXMax = max(L(1, :)) + 0.2*(max(L(1, :))-min(L(1, :)));
-axisYMin = min(L(2, :)) - 0.2*(max(L(2, :))-min(L(2, :)));
-axisYMax = max(L(2, :)) + 0.2*(max(L(2, :))-min(L(2, :)));
+
 %}
 axisXMin = -1.5 * max(L, [], 'all');
 axisXMax =  1.5 * max(L, [], 'all');
@@ -56,41 +38,139 @@ for i = 1:N
 end
 hold off
 view(3)
+%}
+%
+%% Check validity of input
+A = logical(A);
+assert(nnz(V(:, A)) == 0);  % anchor points must have velocity zero
+assert(size(Spring, 2) == 4);
+assert(nnz(M<=0) == 0);
+for i = 1:size(Spring, 1)
+    assert(~( A(Spring(i, 1)) && A(Spring(i, 2)) ));  % should not have string connecting two anchor points
+end
 
+%% 
+if visRealtime
+    
+    % marker color
+    cMarker = colorcube;
+    s = RandStream('mt19937ar','Seed',0);
+    RandStream.setGlobalStream(s);
+    idx = randperm(size(cMarker, 1));
+    cMarker = cMarker(idx, :);
+    cMarker = [lines(7); cMarker];
+    % spring color
+    cSpringConst = 55;
+    cSpring = whitejet(cSpringConst);
+    % size
+    mSize = calcSize(M);
+    % trail deque
+    dequeSize = 600;
+    Xtrail = ones(N, dequeSize) .* L(1, :)';
+    Ytrail = ones(N, dequeSize) .* L(2, :)';
+    dequePtr = 1; % deque to show trace
+    % figrue
+    figure
+    hold on
+    set(gcf, 'double', 'on');
+    % plot anchor and normal points
+    for i = 1:N
+        if A(i)
+            h(i) = scatter(L(1, i), L(2, i), mSize(i)+10, 's', 'MarkerFaceColor', cMarker(i, :),...
+                        'MarkerEdgeColor', 'black', 'LineWidth', 2);
+        else
+            h(i) = scatter(L(1, i), L(2, i), mSize(i), 'o', 'MarkerFaceColor', cMarker(i, :), 'MarkerEdgeColor', 'none');
+            htrail(i) = plot(Xtrail(i, :), Ytrail(i, :), 'Color', cMarker(i, :));
+        end
+    end
+    % plot springs
+    for i = 1:size(Spring, 1)
+        hspr(i) = plot(L(1, [Spring(i, 1), Spring(i, 2)]), L(2, [Spring(i, 1), Spring(i, 2)]),...
+                      '-.', 'Marker', 'none', 'LineWidth', 1.5);
+    end
+    axis equal
+    hold off
+    % color bar
+    colormap(cSpring);
+    caxis([-9 9]);
+    cbar = colorbar;
+    cbar.Label.String = 'String force from compression to extension';
+    %
+    axisXMin = min(L(1, :)) - 0.5*(max(L(1, :))-min(L(1, :)));
+    axisXMax = max(L(1, :)) + 0.5*(max(L(1, :))-min(L(1, :)));
+    axisYMin = min(L(2, :)) - 0.5*(max(L(2, :))-min(L(2, :)));
+    axisYMax = max(L(2, :)) + 0.5*(max(L(2, :))-min(L(2, :)));
+end
 
-% simulation starts here
+if storeData
+    
+    XHist = zeros(N, clockmax);
+    YHist = zeros(N, clockmax);
+end
+
+%% simulation starts here
 for clock = 1:clockmax
 
     t = clock * dt;
-    R = calcR(L);
-    T = calcT(R, R0, S);
-    for i = 1:N % now updating the velocity of i-th object
-        
+    F = calcF(L, Spring);
+    % now updating the velocity of i-th object
+    for i = 1:N
+
+        if A(i), continue;end  % skip anchor
         a = zeros(2, 1);
         for j = 1:N
-        
-            if (i==j), continue;end
-            a = a + T(i, j) .* (L(:, j) - L(:, i)) ./ R(i, j) ./ M(i);
+            if i==j, continue;end  % divide by 0
+            a = a + F(i, j) .* (L(:, j)-L(:, i)) ./ norm(L(:, i)-L(:, j));
         end
+        a = a ./ M(i);
+
         % update velocity
         V(:, i) = V(:, i) + a .* dt;
     end
-    for i = 1:N  % updating the location of i-th object
+    % updating the location of i-th object
+    L = L + V .* dt;
 
-        L(:, i) = L(:, i) + V(:, i) .* dt;
+    % update realtime figrue
+    if visRealtime
+        for i = 1:N
+            set(h(i), 'xdata', L(1, i), 'ydata', L(2, i));
+        end
+
+        Xtrail(:, dequePtr) = L(1, :)';
+        Ytrail(:, dequePtr) = L(2, :)';
+        dequePtr = dequePtr + 1;
+        if (dequePtr > dequeSize), dequePtr = 1;end
+        for i = 1:N
+            if A(i), continue;end
+            set(htrail(i), 'xdata', [Xtrail(i, dequePtr:dequeSize), Xtrail(i, 1:dequePtr-1)],...
+                           'ydata', [Ytrail(i, dequePtr:dequeSize), Ytrail(i, 1:dequePtr-1)]);
+        end
+        % update spring, update spring color
+        for i = 1:size(Spring, 1)
+            dev = ceil(abs(3*F(Spring(i, 1), Spring(i, 2))));
+            if dev>27, dev=27;end
+            if F(Spring(i, 1), Spring(i, 2))>0
+                color = cSpring(28+dev, :);
+            else
+                color = cSpring(28-dev, :);
+            end
+            set(hspr(i), 'xdata', L(1, [Spring(i, 1), Spring(i, 2)]),...
+                         'ydata', L(2, [Spring(i, 1), Spring(i, 2)]),...
+                         'Color', color);
+        end
+        % drawnow
+        drawnow
+        xlim([axisXMin, axisXMax]);
+        ylim([axisYMin, axisYMax]);
+        pause(pauseTime);
     end
-    % re-plot subimage-1
-    set(h, 'xdata', L(1, :), 'ydata', L(2, :));
-
-    XHist(:, dequePtr) = L(1, :)';
-    YHist(:, dequePtr) = L(2, :)';
-    dequePtr = dequePtr + 1;
-    if (dequePtr > dequeSize), dequePtr = 1;end
-    for i = 1:N
-        set(htrail(i), 'xdata', [XHist(i, dequePtr:dequeSize), XHist(i, 1:dequePtr-1)],...
-                       'ydata', [YHist(i, dequePtr:dequeSize), YHist(i, 1:dequePtr-1)]);
+    % store data
+    if storeData
+        XHist(:, clock) = L(1, :)';
+        YHist(:, clock) = L(2, :)';
     end
     % replot subimage-2
+    %{
     gradient_ = zeros(fieldResolution, fieldResolution, 2);
     XArr = axisXMin:axisXSpace:axisXMax;
     YArr = axisYMax:-axisYSpace:axisYMin;
@@ -115,25 +195,29 @@ for clock = 1:clockmax
     for i = 1:N
         set(hfieldmass(i), 'xdata', L(1, i), 'ydata', L(2, i), 'zdata', massZ(i));
     end
-    % draw now
-    drawnow
-    subplot(1, 2, 1)
-    xlim([axisXMin, axisXMax]);
-    ylim([axisYMin, axisYMax]);
-    pause(0.01);
+    %}
+end
+
+%%
+function [F] = calcF(L, Spring)
+
+    N = size(L, 2);
+    F = zeros(N, N);
+    for i = 1:size(Spring, 1)
+        f = Spring(i, 4) * (norm(L(:, Spring(i, 1))-L(:, Spring(i, 2))) - Spring(i, 3));
+        F(Spring(i, 1), Spring(i, 2)) = f;
+        F(Spring(i, 2), Spring(i, 1)) = f;
+    end
 end
 
 
-function [R] = calcR(L)
+function [mSize] = calcSize(M)
 
-    N = size(L, 2);
-    R = zeros(N, N);
-    for i = 1:N
-        for j = 1:N
-        
-            R(i, j) = norm(L(:, i) - L(:, j));
-        end
-    end
+    low = 32;
+    high = inf;
+    minM = min(M);
+    mSize = low .* (M ./ minM);
+    mSize(mSize > high) = high;
 end
 
 
@@ -157,10 +241,4 @@ function [massZ] = calcZ(Z, L, XArr, YArr)
         end
         massZ(i) = Z(yy, xx) + 0.2;
     end
-end
-
-
-function [T] = calcT(R, R0, S)
-
-    T = S .* (R - R0);
 end
