@@ -52,7 +52,7 @@ for i = 1:size(Spring, 1)
     assert(~( A(Spring(i, 1)) && A(Spring(i, 2)) ));  % should not have string connecting two anchor points
 end
 
-%% 
+%% visualization
 if visRealtime
     
     % marker color
@@ -72,7 +72,7 @@ if visRealtime
     Ytrail = ones(N, dequeSize) .* L(2, :)';
     dequePtr = 1; % deque to show trace
     % figrue
-    figure
+    figure('Position', [1739 50 1600 900])
     hold on
     set(gcf, 'double', 'on');
     % plot anchor and normal points
@@ -93,10 +93,12 @@ if visRealtime
     axis equal
     hold off
     % color bar
+    %{
     colormap(cSpring);
     caxis([-9 9]);
     cbar = colorbar;
     cbar.Label.String = 'String force from compression to extension';
+    %}
     % axis lim
     halfLength = max([max(L(1, :))-min(L(1, :)), max(L(2, :))-min(L(2, :))]);
     if halfLength<5, halfLength=5;end
@@ -110,6 +112,7 @@ if storeData
     
     XHist = zeros(N, clockmax);
     YHist = zeros(N, clockmax);
+    colorSprIdx = zeros(size(Spring, 1), clockmax);
 end
 
 %% simulation starts here
@@ -137,6 +140,7 @@ for clock = 1:clockmax
     % update realtime figrue
     if visRealtime
         for i = 1:N
+            if A(i), continue;end
             set(h(i), 'xdata', L(1, i), 'ydata', L(2, i));
         end
 
@@ -155,8 +159,10 @@ for clock = 1:clockmax
             if dev>27, dev=27;end
             if F(Spring(i, 1), Spring(i, 2))>0
                 color = cSpring(28+dev, :);
+                if storeData, colorSprIdx(i, clock)=28+dev;end
             else
                 color = cSpring(28-dev, :);
+                if storeData, colorSprIdx(i, clock)=28-dev;end
             end
             set(hspr(i), 'xdata', L(1, [Spring(i, 1), Spring(i, 2)]),...
                          'ydata', L(2, [Spring(i, 1), Spring(i, 2)]),...

@@ -7,6 +7,7 @@ data.L = L;
 data.V = V;
 data.A = A;
 data.Spring = Spring;
+data.colorSprIdx = colorSprIdx;
 
 data.tmax = tmax;
 data.clockmax = clockmax;
