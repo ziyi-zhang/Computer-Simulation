@@ -116,6 +116,7 @@ if storeData
 end
 
 %% simulation starts here
+count = 1;
 for clock = 1:clockmax
 
     t = clock * dt;
@@ -153,21 +154,25 @@ for clock = 1:clockmax
             set(htrail(i), 'xdata', [Xtrail(i, dequePtr:dequeSize), Xtrail(i, 1:dequePtr-1)],...
                            'ydata', [Ytrail(i, dequePtr:dequeSize), Ytrail(i, 1:dequePtr-1)]);
         end
-        % update spring, update spring color
-        for i = 1:size(Spring, 1)
-            dev = ceil(abs(3*F(Spring(i, 1), Spring(i, 2))));
-            if dev>27, dev=27;end
-            if F(Spring(i, 1), Spring(i, 2))>0
-                color = cSpring(28+dev, :);
-                if storeData, colorSprIdx(i, clock)=28+dev;end
-            else
-                color = cSpring(28-dev, :);
-                if storeData, colorSprIdx(i, clock)=28-dev;end
-            end
+    end
+    % update spring, update spring color
+    for i = 1:size(Spring, 1)
+        dev = ceil(abs(3*F(Spring(i, 1), Spring(i, 2))));
+        if dev>27, dev=27;end
+        if F(Spring(i, 1), Spring(i, 2))>0
+            color = cSpring(28+dev, :);
+            if storeData, colorSprIdx(i, clock)=28+dev;end
+        else
+            color = cSpring(28-dev, :);
+            if storeData, colorSprIdx(i, clock)=28-dev;end
+        end
+        if visRealtime
             set(hspr(i), 'xdata', L(1, [Spring(i, 1), Spring(i, 2)]),...
                          'ydata', L(2, [Spring(i, 1), Spring(i, 2)]),...
                          'Color', color);
         end
+    end
+    if visRealtime
         % drawnow
         drawnow
         xlim([axisXMin, axisXMax]);
@@ -206,6 +211,13 @@ for clock = 1:clockmax
         set(hfieldmass(i), 'xdata', L(1, i), 'ydata', L(2, i), 'zdata', massZ(i));
     end
     %}
+    if ~visRealtime
+        if count > 500
+            fprintf('%.2f\n', clock/clockmax);
+            count = 0;
+        end
+        count = count + 1;
+    end
 end
 
 %%

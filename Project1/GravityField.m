@@ -1,7 +1,12 @@
-function [] = GravityField(filename, focusIdx)
+function [] = GravityField(filename, focusIdx, fastForward)
 % Visualize the gravity field based on the stored data
 % 'filename' should be a 'mat' file created by 'SaveData.m'
 
+    if nargin<2
+        if strcmp(filename, 'harmonic'), focusIdx=2;fastForward=4;end
+        if strcmp(filename, 'tribody'), focusIdx=1;fastForward=4;end
+        if strcmp(filename, 'square'), focusIdx=1;fastForward=4;end
+    end
     %% read in data
     fprintf('Loading file <%s> with focus point index %d.\n', filename, focusIdx);
     data = load(filename);
@@ -22,6 +27,12 @@ function [] = GravityField(filename, focusIdx)
     end
     XHist = data.XHist;
     YHist = data.YHist;
+    % fastForward
+    idx = 1:fastForward:clockmax;
+    clockmax = length(idx);
+    XHist = XHist(:, idx);
+    YHist = YHist(:, idx);
+    colorSprIdx = colorSprIdx(:, idx);
     
     %% visRealtime
     % marker color
@@ -73,7 +84,7 @@ function [] = GravityField(filename, focusIdx)
     caxis(leftPanel, 'manual');
     cbar = colorbar();
     cbar.Label.String = 'String force from compression to extension';
-    cbar.Label.FontSize = 12;
+    cbar.Label.FontSize = 15;
     % axis lim
     halfLength = max([max(XHist, [], 'all')-min(XHist, [], 'all'), max(YHist, [], 'all')-min(YHist, [], 'all')]);
     if halfLength<5, halfLength=5;end
@@ -85,11 +96,28 @@ function [] = GravityField(filename, focusIdx)
         axisXMin=-2;axisXMax=20;axisYMin=-7;axisYMax=7;
     elseif strcmp(filename, 'tribody')
         axisXMin=-10;axisXMax=17;axisYMin=-8;axisYMax=8;
+    elseif strcmp(filename, 'square')
+        axisXMin=-20;axisXMax=20;axisYMin=-20;axisYMax=20;
     end
     xlim(leftPanel, [axisXMin, axisXMax]);
     ylim(leftPanel, [axisYMin, axisYMax]);
 
     %% Gravity Field
+    % springFocus to accelerate
+    SpringFocus = [];
+    SpringFocusConnected = false(N, 1);
+    SpringFocusConnected(focusIdx) = true;
+    for i = 1:size(Spring, 1)
+        if Spring(i, 1)==focusIdx
+            SpringFocus = [SpringFocus; Spring(i, 2:4)];  %#ok
+            SpringFocusConnected(Spring(i, 2)) = true;
+        end
+        if Spring(i, 2)==focusIdx
+            SpringFocus = [SpringFocus; Spring(i, 1), Spring(i, 3:4)];  %#ok
+            SpringFocusConnected(Spring(i, 1)) = true;
+        end
+    end
+    % plot hfieldmass
     fieldResolution = 50;
     axisXSpace = (axisXMax - axisXMin) / (fieldResolution-1);
     axisYSpace = (axisYMax - axisYMin) / (fieldResolution-1);
@@ -98,12 +126,13 @@ function [] = GravityField(filename, focusIdx)
     hold on
     hfield = surf(rightPanel, surfX, surfY, zeros(length(surfX), length(surfY)), 'FaceColor', 'flat', 'EdgeAlpha', 0.1);
     for i = 1:N
+        if ~SpringFocusConnected(i), continue;end  % only plot connected masses
         hfieldmass(i) = scatter3(rightPanel, L(1, i), L(2, i), 0, 40, cMarker(i, :), 'filled', 'MarkerEdgeColor', 'b');
     end
     % legend
     fakeTarget = scatter3(rightPanel, 0, 0, -200, 2, cMarker(focusIdx, :), 'filled');
     legend_ = legend(fakeTarget, 'Surface reconstructed using this mass');
-    legend_.FontSize = 12;
+    legend_.FontSize = 15;
     legend_.AutoUpdate = false;
     % done
     grid on
@@ -120,19 +149,11 @@ function [] = GravityField(filename, focusIdx)
         zlimMin = -30;zlimMax = 40;
     elseif strcmp(filename, 'tribody')
         zlimMin = -100;zlimMax = 150;
+    elseif strcmp(filename, 'square')
+        zlimMin = -150;zlimMax = 50;
     end
     zlim(rightPanel, [zlimMin, zlimMax]);
     massZCorrection = 0.01 * (zlimMax - zlimMin);
-    % springFocus to accelerate
-    SpringFocus = [];
-    for i = 1:size(Spring, 1)
-        if Spring(i, 1)==focusIdx
-            SpringFocus = [SpringFocus; Spring(i, 2:4)];  %#ok
-        end
-        if Spring(i, 2)==focusIdx
-            SpringFocus = [SpringFocus; Spring(i, 1), Spring(i, 3:4)];  %#ok
-        end
-    end
 
     % pauseTime/FPS control
     pauseTime = 0.0;
@@ -168,7 +189,7 @@ function [] = GravityField(filename, focusIdx)
 
                     p = [XArr(j); YArr(i)];  % position of probe
                     k_ = SpringFocus(k, 1);  % idx of connected point
-                    Lk_ = [XHist(k, t); YHist(k, t)];  % location of k_
+                    Lk_ = [XHist(k_, t); YHist(k_, t)];  % location of k_
                     r = norm([XHist(k_, t); YHist(k_, t)] - p);
                     forceElement = SpringFocus(k, 3) .* (r - SpringFocus(k, 2)) .* (Lk_ - p) ./ r;
                     force(i, j, 1) = force(i, j, 1) + forceElement(1);
@@ -178,15 +199,14 @@ function [] = GravityField(filename, focusIdx)
         end
         force = toSmooth(force);
         Z = -g2s(force(:,:,1), force(:,:,2), XArr', YArr');
-        %{
-        ZMax = quantile(Z(:), 0.95);
-        Z(Z>ZMax) = ZMax;
-        ZMin = quantile(Z(:), 0.05);
-        Z(Z<ZMin) = ZMin;
-        %}
+
+        Z(Z>zlimMax) = zlimMax;
+        Z(Z<zlimMin) = zlimMin;
+        
         set(hfield, 'zdata', Z); % update field
         massZ = interp2(surfX, surfY, Z, XHist(:, t), YHist(:, t));
         for i = 1:N
+            if ~SpringFocusConnected(i), continue;end
             set(hfieldmass(i), 'xdata', XHist(i, t), 'ydata', YHist(i, t), 'zdata', massZ(i)+massZCorrection);
         end
         

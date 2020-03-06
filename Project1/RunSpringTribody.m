@@ -21,7 +21,7 @@ tmax = 10;
 clockmax = 2000;
 dt = tmax / clockmax;
 % visualization parameters
-visRealtime = true;
+visRealtime = false;
 storeData = true;
 % visRealtime parameters
 pauseTime = 0.0;
