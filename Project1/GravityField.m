@@ -6,6 +6,7 @@ function [] = GravityField(filename, focusIdx, fastForward)
         if strcmp(filename, 'harmonic'), focusIdx=2;fastForward=4;end
         if strcmp(filename, 'tribody'), focusIdx=1;fastForward=4;end
         if strcmp(filename, 'square'), focusIdx=1;fastForward=4;end
+        if strcmp(filename, 'stable'), focusIdx=1;fastForward=30;end
     end
     %% read in data
     fprintf('Loading file <%s> with focus point index %d.\n', filename, focusIdx);
@@ -98,6 +99,8 @@ function [] = GravityField(filename, focusIdx, fastForward)
         axisXMin=-10;axisXMax=17;axisYMin=-8;axisYMax=8;
     elseif strcmp(filename, 'square')
         axisXMin=-20;axisXMax=20;axisYMin=-20;axisYMax=20;
+    elseif strcmp(filename, 'stable')
+        axisXMin=-22;axisXMax=22;axisYMin=-22;axisYMax=22;
     end
     xlim(leftPanel, [axisXMin, axisXMax]);
     ylim(leftPanel, [axisYMin, axisYMax]);
@@ -151,6 +154,8 @@ function [] = GravityField(filename, focusIdx, fastForward)
         zlimMin = -100;zlimMax = 150;
     elseif strcmp(filename, 'square')
         zlimMin = -150;zlimMax = 50;
+    elseif strcmp(filename, 'stable')
+        zlimMin = -3e5;zlimMax = 4.5e5;
     end
     zlim(rightPanel, [zlimMin, zlimMax]);
     massZCorrection = 0.01 * (zlimMax - zlimMin);
@@ -220,7 +225,7 @@ end
 function [mSize] = calcSize(M)
 
     low = 32;
-    high = inf;
+    high = 90;
     minM = min(M);
     mSize = low .* (M ./ minM);
     mSize(mSize > high) = high;

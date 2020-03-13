@@ -53,6 +53,9 @@ for i = 1:size(Spring, 1)
 end
 
 %% visualization
+% spring color
+cSpringConst = 55;
+cSpring = whitejet(cSpringConst);
 if visRealtime
     
     % marker color
@@ -62,9 +65,6 @@ if visRealtime
     idx = randperm(size(cMarker, 1));
     cMarker = cMarker(idx, :);
     cMarker = [lines(7); cMarker];
-    % spring color
-    cSpringConst = 55;
-    cSpring = whitejet(cSpringConst);
     % size
     mSize = calcSize(M);
     % trail deque
@@ -236,7 +236,7 @@ end
 function [mSize] = calcSize(M)
 
     low = 32;
-    high = inf;
+    high = 90;
     minM = min(M);
     mSize = low .* (M ./ minM);
     mSize(mSize > high) = high;
