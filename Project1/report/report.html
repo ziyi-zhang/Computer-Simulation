@@ -51,16 +51,16 @@ u_i,~v_i,~w_i\qquad \text{The velocity of mass i}
 <p>The program uses vector operations to accelerate here.</p>
 <h4 id="22-3d-visualization">2.2 3D Visualization</h4>
 <p>We need to choose a focusing mass to visualize the potential energy field that particular mass feels. Notice different choice of focusing masses will lead to completely different surfaces.<br>
-The visualization of the potential enerygy field is achieved by moving the focusing mass to a set of pre-calculated locations in the plane. The resultant force at each point is then calculated. The next step is to reconstruct a surface based on those forces. Technically this is an reverse-gradient operation. Finally we interpolate the surface to visualize it in 3D. Many other details need to be taken care of to achieve stable result and they will not be elaborated here.</p>
+The visualization of the potential energy field is achieved by moving the focusing mass to a set of pre-calculated locations in the plane. The resultant force at each point is then calculated. The next step is to reconstruct a surface based on those forces. Technically this is a reverse-gradient operation. Finally we interpolate the surface to visualize it in 3D. Many other details need to be taken care of to achieve stable result and they will not be elaborated here.</p>
 <h4 id="221-reverse-gradient">2.2.1 Reverse-gradient</h4>
-<p>Let <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>Z</mi></mrow><annotation encoding="application/x-tex">Z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">Z</span></span></span></span> be the surface, <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>Z</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">Z_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.07153em;">Z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.07153em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> be the sampe results that represent gradients, the goal is to minimize the cost function</p>
+<p>Let <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>Z</mi></mrow><annotation encoding="application/x-tex">Z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">Z</span></span></span></span> be the surface, <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>Z</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">Z_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.07153em;">Z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.07153em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> be the sample results that represent gradients, the goal is to minimize the cost function</p>
 <p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">∣</mi><mi mathvariant="normal">∣</mi><mtext>gradient</mtext><mo stretchy="false">(</mo><mi>Z</mi><mo stretchy="false">)</mo><mo>−</mo><msub><mi>Z</mi><mn>0</mn></msub><mi mathvariant="normal">∣</mi><msub><mi mathvariant="normal">∣</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">||\text{gradient}(Z)-Z_0||_2
 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord">∣</span><span class="mord text"><span class="mord">gradient</span></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.07153em;">Z</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.07153em;">Z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.07153em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mord"><span class="mord">∣</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></p>
-<p>This problem has been well researched. After trying several methods, an implementation<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mrow></mrow><mrow><mo stretchy="false">[</mo><mn>1</mn><mo stretchy="false">]</mo></mrow></msup></mrow><annotation encoding="application/x-tex">^{[1]}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8879999999999999em;vertical-align:0em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8879999999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">[</span><span class="mord mtight">1</span><span class="mclose mtight">]</span></span></span></span></span></span></span></span></span></span></span></span> turns out to have the best performace and is adopted.</p>
+<p>This problem has been well researched. After trying several methods, an implementation<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mrow></mrow><mrow><mo stretchy="false">[</mo><mn>1</mn><mo stretchy="false">]</mo></mrow></msup></mrow><annotation encoding="application/x-tex">^{[1]}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8879999999999999em;vertical-align:0em;"></span><span class="mord"><span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8879999999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">[</span><span class="mord mtight">1</span><span class="mclose mtight">]</span></span></span></span></span></span></span></span></span></span></span></span> turns out to have the best performance and is adopted.</p>
 <hr>
 <h3 id="3-visualization-interpretation">3. Visualization Interpretation</h3>
 <p>Take a simple harmonic motion as example. Left hand side is 2D visualization where a free mass is connected with an anchor point; right hand side is the reconstructed surface as seen by the orange dot.
-<img src="file:///c:\Users\ziyiz\OneDrive\桌面\Computer-Simulation\Project1\report\1.PNG" alt="ff1"></p>
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project1/report/1.PNG" alt="ff1"></p>
 <h4 id="31-2d-case">3.1 2D Case</h4>
 <ul>
 <li>The dot-dash line indicates a spring connecting two masses.</li>
@@ -78,34 +78,35 @@ The visualization of the potential enerygy field is achieved by moving the focus
 </ul>
 <hr>
 <h3 id="4-tests">4. Tests</h3>
-<p>To make sure the program is correctly coded, I designed a tribody senario where three masses are placed at the vertices of a regular triangle, with zero initial velocity.<br>
+<p>To make sure the program is correctly coded, I designed a tribody scenario where three masses are placed at the vertices of a regular triangle, with zero initial velocity.<br>
 The simulation went as we speculated. It is a periodic motion, and each mass is doing simple harmonic motion in its own direction.<br>
 I tried to change simulation step <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">\Delta t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">Δ</span><span class="mord mathdefault">t</span></span></span></span> in different scales and the result is quite stable. <strong>This step has been repeated for all coming test cases.</strong><br>
 The 3D surface is reconstructed focusing on the blue dot. It is very reasonable throughout the movie.
-<img src="file:///c:\Users\ziyiz\OneDrive\桌面\Computer-Simulation\Project1\report\2.PNG" alt="ff1"></p>
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project1/report/2.PNG" alt="ff1"></p>
 <hr>
 <h3 id="5-results">5. Results</h3>
 <h4 id="51-square">5.1 Square</h4>
 <p>We place four masses at the vertices of a regular square, with some initial velocity. The simulation creates some beautiful pattern.
-<img src="file:///c:\Users\ziyiz\OneDrive\桌面\Computer-Simulation\Project1\report\3.PNG" alt="ff1"></p>
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project1/report/3.PNG" alt="ff1"></p>
 <h4 id="52-stable">5.2 Stable</h4>
 <p>One of my goal is to create a stable system using springs. This is much easier than a stable system in space because we can control which two masses are connected by springs.<br>
-This is the most complicated system among all those I created that works. We have a central mass (light blue) conneced with five masses, each with different location and velocity. One of them has its own three smaller masses surrounding.
+This is the most complicated system among all those I created that works. We have a central mass (light blue) connected with five masses, each with different location and velocity. One of them has its own three smaller masses surrounding.
 This system can be stable for a long time, but due to structural design failure, it will eventually collapse. There is no simple fix to this structure.<br>
 It is interesting that, if we look at the 3D surface reconstructed by the central mass, we will notice that the surface is changing shape dramatically, but that point always stays at the bottom of the valley. That is the reason why this system is stable. Of course, mathematical calculation shows it still moves a little bit, and the movement will accumulate.
-<img src="file:///c:\Users\ziyiz\OneDrive\桌面\Computer-Simulation\Project1\report\4.PNG" alt="ff1"></p>
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project1/report/4.PNG" alt="ff1"></p>
 <h4 id="53-self-stable">5.3 Self-stable</h4>
-<p>I also want to design a system where it tends to balance itself, which means a tiny disturbance from outside will be be magnified, but instead attenuated. A real life example can be found
+<p>I also want to design a system where it tends to balance itself, which means a tiny disturbance from outside will be magnified, but instead attenuated. A real life example can be found
 <a href="https://idsc.ethz.ch/research-dandrea/research-projects/archive/balancing-cube.html">here</a>.
 I assume we need some energy input to achieve this, but I never succeeded.</p>
 <hr>
-<h3 id="6-refrence">6. Refrence</h3>
+<h3 id="6-reference">6. Reference</h3>
 <ul>
 <li>(1) Matthew Harker, Paul O'Leary, (2020). Surface Reconstruction from Gradient Fields: grad2Surf Version 1.0 (<a href="https://www.mathworks.com/matlabcentral/fileexchange/43149-surface-reconstruction-from-gradient-fields-grad2surf-version-1-0">https://www.mathworks.com/matlabcentral/fileexchange/43149-surface-reconstruction-from-gradient-fields-grad2surf-version-1-0</a>), MATLAB Central File Exchange. Retrieved March 13, 2020.</li>
+<li>(2) Víctor Martínez-Cagigal (2020). Whitish Jet Colormap (<a href="https://www.mathworks.com/matlabcentral/fileexchange/67415-whitish-jet-colormap">https://www.mathworks.com/matlabcentral/fileexchange/67415-whitish-jet-colormap</a>), MATLAB Central File Exchange. Retrieved March 14, 2020.</li>
 </ul>
 <hr>
 <h3 id="appendix-a-how-to-run-the-code">Appendix A How to run the code</h3>
-<p>You can run the code in realtime, with any setup. No need to wait for a long time to create a movie. This is achieved by splitting the project into two parts:</p>
+<p>You can run the code in real time, with any setup. No need to wait for a long time to create a movie. This is achieved by splitting the project into two parts:</p>
 <ul>
 <li>part A: SpringSimulation.m that does all simulation and stores the data into a mat file. It can be configured to disable all visual output for speed consideration.</li>
 <li>part B: GravityField.m that reads the mat file and calculate 2D and 3D visualization. It supports 'fast forward'.</li>
@@ -115,6 +116,546 @@ I assume we need some energy input to achieve this, but I never succeeded.</p>
 &gt;&gt; filename = 'stable'; SaveData
 &gt;&gt; GravityField('stable')  % start the movie
 </div></code></code></pre>
+<p>Replacing three appearances of 'stable' by 'harmonic', 'tribody' or 'square' will run the corresponding script.<br>
+You can also create your own 'RunSpringXXX' script with arbitary setup to play around with the system.</p>
+<hr>
+<h3 id="appendix-b-springsimulationm">Appendix B SpringSimulation.m</h3>
+<pre><code class="language-Matlab"><div><span class="hljs-comment">%% spring system simulation</span>
+<span class="hljs-comment">% The main script to run simulation</span>
+<span class="hljs-comment">% Use 'GravityField' to visualize the gravity field after running this</span>
+<span class="hljs-comment">% simulation</span>
+<span class="hljs-comment">
+%{
+% visualization parameters
+c = [0, 0, 1;
+     0.4, 0.8, 0.5;
+     0.8, 0, 0.5;
+     0.9, 0.4, 0];
+dequeSize = 150;
+XHist = ones(N, dequeSize) .* L(1, :)';
+YHist = ones(N, dequeSize) .* L(2, :)';
+dequePtr = 1; % deque to show trace
+%{
+
+%}</span>
+axisXMin = <span class="hljs-number">-1.5</span> * <span class="hljs-built_in">max</span>(L, [], <span class="hljs-string">'all'</span>);
+axisXMax =  <span class="hljs-number">1.5</span> * <span class="hljs-built_in">max</span>(L, [], <span class="hljs-string">'all'</span>);
+axisYMin = <span class="hljs-number">-1.5</span> * <span class="hljs-built_in">max</span>(L, [], <span class="hljs-string">'all'</span>);
+axisYMax =  <span class="hljs-number">1.5</span> * <span class="hljs-built_in">max</span>(L, [], <span class="hljs-string">'all'</span>);
+fieldResolution = <span class="hljs-number">50</span>;
+axisXSpace = (axisXMax - axisXMin) / (fieldResolution<span class="hljs-number">-1</span>);
+axisYSpace = (axisYMax - axisYMin) / (fieldResolution<span class="hljs-number">-1</span>);
+[surfX, surfY] = <span class="hljs-built_in">meshgrid</span>(axisXMin:axisXSpace:axisXMax, axisYMax:-axisYSpace:axisYMin);
+<span class="hljs-comment">% graphics output</span>
+set(gcf, <span class="hljs-string">'double'</span>, <span class="hljs-string">'on'</span>)
+subplot(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>)
+<span class="hljs-built_in">hold</span> on
+h = <span class="hljs-built_in">scatter</span>(L(<span class="hljs-number">1</span>, :), L(<span class="hljs-number">2</span>, :), <span class="hljs-number">25.</span>*<span class="hljs-built_in">ones</span>(<span class="hljs-number">1</span>, N), c(<span class="hljs-number">1</span>:N, :), <span class="hljs-string">'filled'</span>);
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:N
+    htrail(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">plot</span>(XHist(<span class="hljs-built_in">i</span>, :), YHist(<span class="hljs-built_in">i</span>, :), <span class="hljs-string">'Color'</span>, c(<span class="hljs-built_in">i</span>, :));
+<span class="hljs-keyword">end</span>
+<span class="hljs-built_in">hold</span> off
+subplot(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">2</span>)
+<span class="hljs-built_in">hold</span> on
+hfield = surf(surfX, surfY, <span class="hljs-built_in">zeros</span>(<span class="hljs-built_in">length</span>(surfX), <span class="hljs-built_in">length</span>(surfY)), <span class="hljs-string">'FaceColor'</span>, <span class="hljs-string">'flat'</span>, <span class="hljs-string">'EdgeAlpha'</span>, <span class="hljs-number">0.1</span>);
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:N
+    hfieldmass(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">scatter3</span>(L(<span class="hljs-number">1</span>, <span class="hljs-built_in">i</span>), L(<span class="hljs-number">2</span>, <span class="hljs-built_in">i</span>), <span class="hljs-number">0</span>, <span class="hljs-number">40</span>, c(<span class="hljs-built_in">i</span>, :), <span class="hljs-string">'filled'</span>, <span class="hljs-string">'MarkerEdgeColor'</span>, <span class="hljs-string">'b'</span>);
+<span class="hljs-keyword">end</span>
+<span class="hljs-built_in">hold</span> off
+view(<span class="hljs-number">3</span>)
+<span class="hljs-comment">%}</span>
+<span class="hljs-comment">%</span>
+<span class="hljs-comment">%% Check validity of input</span>
+A = logical(A);
+assert(nnz(V(:, A)) == <span class="hljs-number">0</span>);  <span class="hljs-comment">% anchor points must have velocity zero</span>
+assert(<span class="hljs-built_in">size</span>(Spring, <span class="hljs-number">2</span>) == <span class="hljs-number">4</span>);
+assert(nnz(M&lt;=<span class="hljs-number">0</span>) == <span class="hljs-number">0</span>);
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(Spring, <span class="hljs-number">1</span>)
+    assert(~( A(Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>)) &amp;&amp; A(Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)) ));  <span class="hljs-comment">% should not have string connecting two anchor points</span>
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment">%% visualization</span>
+<span class="hljs-comment">% spring color</span>
+cSpringConst = <span class="hljs-number">55</span>;
+cSpring = whitejet(cSpringConst);
+<span class="hljs-keyword">if</span> visRealtime
+    
+    <span class="hljs-comment">% marker color</span>
+    cMarker = colorcube;
+    s = RandStream(<span class="hljs-string">'mt19937ar'</span>,<span class="hljs-string">'Seed'</span>,<span class="hljs-number">0</span>);
+    RandStream.setGlobalStream(s);
+    idx = randperm(<span class="hljs-built_in">size</span>(cMarker, <span class="hljs-number">1</span>));
+    cMarker = cMarker(idx, :);
+    cMarker = [lines(<span class="hljs-number">7</span>); cMarker];
+    <span class="hljs-comment">% size</span>
+    mSize = calcSize(M);
+    <span class="hljs-comment">% trail deque</span>
+    Xtrail = <span class="hljs-built_in">ones</span>(N, dequeSize) .* L(<span class="hljs-number">1</span>, :)';
+    Ytrail = <span class="hljs-built_in">ones</span>(N, dequeSize) .* L(<span class="hljs-number">2</span>, :)';
+    dequePtr = <span class="hljs-number">1</span>; <span class="hljs-comment">% deque to show trace</span>
+    <span class="hljs-comment">% figrue</span>
+    <span class="hljs-built_in">figure</span>(<span class="hljs-string">'Position'</span>, [<span class="hljs-number">1739</span> <span class="hljs-number">50</span> <span class="hljs-number">1600</span> <span class="hljs-number">900</span>])
+    <span class="hljs-built_in">hold</span> on
+    set(gcf, <span class="hljs-string">'double'</span>, <span class="hljs-string">'on'</span>);
+    <span class="hljs-comment">% plot anchor and normal points</span>
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:N
+        <span class="hljs-keyword">if</span> A(<span class="hljs-built_in">i</span>)
+            h(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">scatter</span>(L(<span class="hljs-number">1</span>, <span class="hljs-built_in">i</span>), L(<span class="hljs-number">2</span>, <span class="hljs-built_in">i</span>), mSize(<span class="hljs-built_in">i</span>)+<span class="hljs-number">10</span>, <span class="hljs-string">'s'</span>, <span class="hljs-string">'MarkerFaceColor'</span>, cMarker(<span class="hljs-built_in">i</span>, :),...
+                        <span class="hljs-string">'MarkerEdgeColor'</span>, <span class="hljs-string">'black'</span>, <span class="hljs-string">'LineWidth'</span>, <span class="hljs-number">2</span>);
+        <span class="hljs-keyword">else</span>
+            h(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">scatter</span>(L(<span class="hljs-number">1</span>, <span class="hljs-built_in">i</span>), L(<span class="hljs-number">2</span>, <span class="hljs-built_in">i</span>), mSize(<span class="hljs-built_in">i</span>), <span class="hljs-string">'o'</span>, <span class="hljs-string">'MarkerFaceColor'</span>, cMarker(<span class="hljs-built_in">i</span>, :), <span class="hljs-string">'MarkerEdgeColor'</span>, <span class="hljs-string">'none'</span>);
+            htrail(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">plot</span>(Xtrail(<span class="hljs-built_in">i</span>, :), Ytrail(<span class="hljs-built_in">i</span>, :), <span class="hljs-string">'Color'</span>, cMarker(<span class="hljs-built_in">i</span>, :));
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% plot springs</span>
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(Spring, <span class="hljs-number">1</span>)
+        hspr(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">plot</span>(L(<span class="hljs-number">1</span>, [Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)]), L(<span class="hljs-number">2</span>, [Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)]),...
+                      <span class="hljs-string">'-.'</span>, <span class="hljs-string">'Marker'</span>, <span class="hljs-string">'none'</span>, <span class="hljs-string">'LineWidth'</span>, <span class="hljs-number">1.5</span>);
+    <span class="hljs-keyword">end</span>
+    axis equal
+    <span class="hljs-built_in">hold</span> off
+    <span class="hljs-comment">% color bar</span>
+<span class="hljs-comment">    %{
+    colormap(cSpring);
+    caxis([-9 9]);
+    cbar = colorbar;
+    cbar.Label.String = 'String force from compression to extension';
+    %}</span>
+    <span class="hljs-comment">% axis lim</span>
+    halfLength = <span class="hljs-built_in">max</span>([<span class="hljs-built_in">max</span>(L(<span class="hljs-number">1</span>, :))-<span class="hljs-built_in">min</span>(L(<span class="hljs-number">1</span>, :)), <span class="hljs-built_in">max</span>(L(<span class="hljs-number">2</span>, :))-<span class="hljs-built_in">min</span>(L(<span class="hljs-number">2</span>, :))]);
+    <span class="hljs-keyword">if</span> halfLength&lt;<span class="hljs-number">5</span>, halfLength=<span class="hljs-number">5</span>;<span class="hljs-keyword">end</span>
+    axisXMin = -halfLength*<span class="hljs-number">1.5</span>;
+    axisXMax = halfLength*<span class="hljs-number">1.5</span>;
+    axisYMin = -halfLength*<span class="hljs-number">1.5</span>;
+    axisYMax = halfLength*<span class="hljs-number">1.5</span>;
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">if</span> storeData
+    
+    XHist = <span class="hljs-built_in">zeros</span>(N, clockmax);
+    YHist = <span class="hljs-built_in">zeros</span>(N, clockmax);
+    colorSprIdx = <span class="hljs-built_in">zeros</span>(<span class="hljs-built_in">size</span>(Spring, <span class="hljs-number">1</span>), clockmax);
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment">%% simulation starts here</span>
+count = <span class="hljs-number">1</span>;
+<span class="hljs-keyword">for</span> clock = <span class="hljs-number">1</span>:clockmax
+
+    t = clock * dt;
+    F = calcF(L, Spring);
+    <span class="hljs-comment">% now updating the velocity of i-th object</span>
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:N
+
+        <span class="hljs-keyword">if</span> A(<span class="hljs-built_in">i</span>), <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>  <span class="hljs-comment">% skip anchor</span>
+        a = <span class="hljs-built_in">zeros</span>(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>);
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">j</span> = <span class="hljs-number">1</span>:N
+            <span class="hljs-keyword">if</span> <span class="hljs-built_in">i</span>==<span class="hljs-built_in">j</span>, <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>  <span class="hljs-comment">% divide by 0</span>
+            a = a + F(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>) .* (L(:, <span class="hljs-built_in">j</span>)-L(:, <span class="hljs-built_in">i</span>)) ./ norm(L(:, <span class="hljs-built_in">i</span>)-L(:, <span class="hljs-built_in">j</span>));
+        <span class="hljs-keyword">end</span>
+        a = a ./ M(<span class="hljs-built_in">i</span>);
+
+        <span class="hljs-comment">% update velocity</span>
+        V(:, <span class="hljs-built_in">i</span>) = V(:, <span class="hljs-built_in">i</span>) + a .* dt;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% updating the location of i-th object</span>
+    L = L + V .* dt;
+
+    <span class="hljs-comment">% update realtime figrue</span>
+    <span class="hljs-keyword">if</span> visRealtime
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:N
+            <span class="hljs-keyword">if</span> A(<span class="hljs-built_in">i</span>), <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>
+            set(h(<span class="hljs-built_in">i</span>), <span class="hljs-string">'xdata'</span>, L(<span class="hljs-number">1</span>, <span class="hljs-built_in">i</span>), <span class="hljs-string">'ydata'</span>, L(<span class="hljs-number">2</span>, <span class="hljs-built_in">i</span>));
+        <span class="hljs-keyword">end</span>
+
+        Xtrail(:, dequePtr) = L(<span class="hljs-number">1</span>, :)';
+        Ytrail(:, dequePtr) = L(<span class="hljs-number">2</span>, :)';
+        dequePtr = dequePtr + <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">if</span> (dequePtr &gt; dequeSize), dequePtr = <span class="hljs-number">1</span>;<span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:N
+            <span class="hljs-keyword">if</span> A(<span class="hljs-built_in">i</span>), <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>
+            set(htrail(<span class="hljs-built_in">i</span>), <span class="hljs-string">'xdata'</span>, [Xtrail(<span class="hljs-built_in">i</span>, dequePtr:dequeSize), Xtrail(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>:dequePtr<span class="hljs-number">-1</span>)],...
+                           <span class="hljs-string">'ydata'</span>, [Ytrail(<span class="hljs-built_in">i</span>, dequePtr:dequeSize), Ytrail(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>:dequePtr<span class="hljs-number">-1</span>)]);
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% update spring, update spring color</span>
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(Spring, <span class="hljs-number">1</span>)
+        dev = <span class="hljs-built_in">ceil</span>(<span class="hljs-built_in">abs</span>(<span class="hljs-number">3</span>*F(Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>))));
+        <span class="hljs-keyword">if</span> dev&gt;<span class="hljs-number">27</span>, dev=<span class="hljs-number">27</span>;<span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">if</span> F(Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>))&gt;<span class="hljs-number">0</span>
+            color = cSpring(<span class="hljs-number">28</span>+dev, :);
+            <span class="hljs-keyword">if</span> storeData, colorSprIdx(<span class="hljs-built_in">i</span>, clock)=<span class="hljs-number">28</span>+dev;<span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">else</span>
+            color = cSpring(<span class="hljs-number">28</span>-dev, :);
+            <span class="hljs-keyword">if</span> storeData, colorSprIdx(<span class="hljs-built_in">i</span>, clock)=<span class="hljs-number">28</span>-dev;<span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">if</span> visRealtime
+            set(hspr(<span class="hljs-built_in">i</span>), <span class="hljs-string">'xdata'</span>, L(<span class="hljs-number">1</span>, [Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)]),...
+                         <span class="hljs-string">'ydata'</span>, L(<span class="hljs-number">2</span>, [Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)]),...
+                         <span class="hljs-string">'Color'</span>, color);
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">if</span> visRealtime
+        <span class="hljs-comment">% drawnow</span>
+        drawnow
+        xlim([axisXMin, axisXMax]);
+        ylim([axisYMin, axisYMax]);
+        pause(pauseTime);
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% store data</span>
+    <span class="hljs-keyword">if</span> storeData
+        XHist(:, clock) = L(<span class="hljs-number">1</span>, :)';
+        YHist(:, clock) = L(<span class="hljs-number">2</span>, :)';
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% replot subimage-2</span>
+<span class="hljs-comment">    %{
+    gradient_ = zeros(fieldResolution, fieldResolution, 2);
+    XArr = axisXMin:axisXSpace:axisXMax;
+    YArr = axisYMax:-axisYSpace:axisYMin;
+    for i = 1:length(XArr)
+        for j = 1:length(YArr)
+            for k = 1:N % for point (i, j) calc k-th planet's force
+
+                p = [XArr(j); YArr(i)]; % position of probe
+                r = norm(L(:, k) - p);
+                gradient_(i, j, 1) = gradient_(i, j, 1) + 1 * (r - R0_) * (L(1, k) - p(1)) / r;
+                gradient_(i, j, 2) = gradient_(i, j, 2) + 1 * (r - R0_) * (L(2, k) - p(2)) / r;
+            end
+        end
+    end
+    Z = -g2s(gradient_(:,:,1), gradient_(:,:,2), XArr', YArr');
+    ZMax = quantile(Z(:), 0.95);
+    Z(Z&gt;ZMax) = ZMax;
+    ZMin = quantile(Z(:), 0.05);
+    Z(Z&lt;ZMin) = ZMin;
+    set(hfield, 'zdata', Z); % update field
+    massZ = calcZ(Z, L, XArr, YArr);
+    for i = 1:N
+        set(hfieldmass(i), 'xdata', L(1, i), 'ydata', L(2, i), 'zdata', massZ(i));
+    end
+    %}</span>
+    <span class="hljs-keyword">if</span> ~visRealtime
+        <span class="hljs-keyword">if</span> count &gt; <span class="hljs-number">500</span>
+            fprintf(<span class="hljs-string">'%.2f\n'</span>, clock/clockmax);
+            count = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">end</span>
+        count = count + <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment">%%</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[F]</span> = <span class="hljs-title">calcF</span><span class="hljs-params">(L, Spring)</span></span>
+
+    N = <span class="hljs-built_in">size</span>(L, <span class="hljs-number">2</span>);
+    F = <span class="hljs-built_in">zeros</span>(N, N);
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(Spring, <span class="hljs-number">1</span>)
+        f = Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">4</span>) * (norm(L(:, Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>))-L(:, Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>))) - Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">3</span>));
+        F(Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)) = f;
+        F(Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>)) = f;
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[mSize]</span> = <span class="hljs-title">calcSize</span><span class="hljs-params">(M)</span></span>
+
+    low = <span class="hljs-number">32</span>;
+    high = <span class="hljs-number">90</span>;
+    minM = <span class="hljs-built_in">min</span>(M);
+    mSize = low .* (M ./ minM);
+    mSize(mSize &gt; high) = high;
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[massZ]</span> = <span class="hljs-title">calcZ</span><span class="hljs-params">(Z, L, XArr, YArr)</span></span>
+    
+    massZ = <span class="hljs-built_in">zeros</span>(<span class="hljs-number">1</span>, <span class="hljs-built_in">size</span>(L, <span class="hljs-number">2</span>));
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(L, <span class="hljs-number">2</span>)
+        xx = <span class="hljs-number">1</span>;
+        yy = <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">j</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(XArr)
+            <span class="hljs-keyword">if</span> XArr(<span class="hljs-built_in">j</span>)&gt;L(<span class="hljs-number">1</span>, <span class="hljs-built_in">i</span>)
+               xx = <span class="hljs-built_in">j</span>;
+               <span class="hljs-keyword">break</span>;
+            <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">j</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(YArr)
+            <span class="hljs-keyword">if</span> YArr(<span class="hljs-built_in">j</span>)&lt;L(<span class="hljs-number">2</span>, <span class="hljs-built_in">i</span>)
+               yy = <span class="hljs-built_in">j</span>;
+               <span class="hljs-keyword">break</span>;
+            <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">end</span>
+        massZ(<span class="hljs-built_in">i</span>) = Z(yy, xx) + <span class="hljs-number">0.2</span>;
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</div></code></pre>
+<hr>
+<h3 id="appendix-c-gravityfield">Appendix C GravityField</h3>
+<pre><code class="language-Matlab"><div><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">GravityField</span><span class="hljs-params">(filename, focusIdx, fastForward)</span></span>
+<span class="hljs-comment">% Visualize the gravity field based on the stored data</span>
+<span class="hljs-comment">% 'filename' should be a 'mat' file created by 'SaveData.m'</span>
+
+    <span class="hljs-keyword">if</span> nargin&lt;<span class="hljs-number">2</span>
+        <span class="hljs-keyword">if</span> strcmp(filename, <span class="hljs-string">'harmonic'</span>), focusIdx=<span class="hljs-number">2</span>;fastForward=<span class="hljs-number">4</span>;<span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">if</span> strcmp(filename, <span class="hljs-string">'tribody'</span>), focusIdx=<span class="hljs-number">1</span>;fastForward=<span class="hljs-number">4</span>;<span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">if</span> strcmp(filename, <span class="hljs-string">'square'</span>), focusIdx=<span class="hljs-number">1</span>;fastForward=<span class="hljs-number">4</span>;<span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">if</span> strcmp(filename, <span class="hljs-string">'stable'</span>), focusIdx=<span class="hljs-number">1</span>;fastForward=<span class="hljs-number">30</span>;<span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">%% read in data</span>
+    fprintf(<span class="hljs-string">'Loading file &lt;%s&gt; with focus point index %d.\n'</span>, filename, focusIdx);
+    data = load(filename);
+    data = data.data;
+    M = data.M;
+    L = data.L;
+    V = data.V;
+    A = data.A;
+    N = <span class="hljs-built_in">length</span>(M);
+    Spring = data.Spring;
+    colorSprIdx = data.colorSprIdx;
+    tmax = data.tmax;
+    clockmax = data.clockmax;
+    dt = tmax / clockmax;
+    <span class="hljs-keyword">if</span> ~isfield(data, <span class="hljs-string">'XHist'</span>) || ~isfield(data, <span class="hljs-string">'YHist'</span>)
+        warning(<span class="hljs-string">'Please run simulation before running this script.'</span>);
+        <span class="hljs-keyword">return</span>;
+    <span class="hljs-keyword">end</span>
+    XHist = data.XHist;
+    YHist = data.YHist;
+    <span class="hljs-comment">% fastForward</span>
+    idx = <span class="hljs-number">1</span>:fastForward:clockmax;
+    clockmax = <span class="hljs-built_in">length</span>(idx);
+    XHist = XHist(:, idx);
+    YHist = YHist(:, idx);
+    colorSprIdx = colorSprIdx(:, idx);
+    
+    <span class="hljs-comment">%% visRealtime</span>
+    <span class="hljs-comment">% marker color</span>
+    cMarker = colorcube;
+    s = RandStream(<span class="hljs-string">'mt19937ar'</span>,<span class="hljs-string">'Seed'</span>,<span class="hljs-number">0</span>);
+    RandStream.setGlobalStream(s);
+    idx = randperm(<span class="hljs-built_in">size</span>(cMarker, <span class="hljs-number">1</span>));
+    cMarker = cMarker(idx, :);
+    cMarker = [lines(<span class="hljs-number">7</span>); cMarker];
+    <span class="hljs-comment">% spring color</span>
+    cSpringConst = <span class="hljs-number">55</span>;
+    cSpring = whitejet(cSpringConst);
+    <span class="hljs-comment">% size</span>
+    mSize = calcSize(M);
+    <span class="hljs-comment">% trail deque</span>
+    dequeSize = <span class="hljs-number">600</span>;
+    <span class="hljs-keyword">if</span> strcmp(filename, <span class="hljs-string">'harmonic'</span>)
+        dequeSize = <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">elseif</span> strcmp(filename, <span class="hljs-string">'tribody'</span>)
+        dequeSize = <span class="hljs-number">200</span>;
+    <span class="hljs-keyword">elseif</span> strcmp(filename, <span class="hljs-string">'stable'</span>)
+        dequeSize = <span class="hljs-number">200</span>;
+    <span class="hljs-keyword">end</span>
+    Xtrail = <span class="hljs-built_in">ones</span>(N, dequeSize) .* L(<span class="hljs-number">1</span>, :)';
+    Ytrail = <span class="hljs-built_in">ones</span>(N, dequeSize) .* L(<span class="hljs-number">2</span>, :)';
+    <span class="hljs-comment">% figrue</span>
+    <span class="hljs-built_in">figure</span>(<span class="hljs-string">'Position'</span>, [<span class="hljs-number">1739</span> <span class="hljs-number">50</span> <span class="hljs-number">1600</span> <span class="hljs-number">900</span>])
+    set(gcf, <span class="hljs-string">'double'</span>, <span class="hljs-string">'on'</span>);
+    leftPanel = subplot(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>);
+    <span class="hljs-built_in">hold</span> on
+    <span class="hljs-comment">% plot anchor and normal points</span>
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:N
+        <span class="hljs-keyword">if</span> A(<span class="hljs-built_in">i</span>)
+            h(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">scatter</span>(leftPanel, L(<span class="hljs-number">1</span>, <span class="hljs-built_in">i</span>), L(<span class="hljs-number">2</span>, <span class="hljs-built_in">i</span>), mSize(<span class="hljs-built_in">i</span>)+<span class="hljs-number">10</span>, <span class="hljs-string">'s'</span>, <span class="hljs-string">'MarkerFaceColor'</span>, cMarker(<span class="hljs-built_in">i</span>, :),...
+                        <span class="hljs-string">'MarkerEdgeColor'</span>, <span class="hljs-string">'black'</span>, <span class="hljs-string">'LineWidth'</span>, <span class="hljs-number">2</span>);
+        <span class="hljs-keyword">else</span>
+            h(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">scatter</span>(leftPanel, L(<span class="hljs-number">1</span>, <span class="hljs-built_in">i</span>), L(<span class="hljs-number">2</span>, <span class="hljs-built_in">i</span>), mSize(<span class="hljs-built_in">i</span>), <span class="hljs-string">'o'</span>, <span class="hljs-string">'MarkerFaceColor'</span>, cMarker(<span class="hljs-built_in">i</span>, :), <span class="hljs-string">'MarkerEdgeColor'</span>, <span class="hljs-string">'none'</span>);
+            htrail(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">plot</span>(leftPanel, Xtrail(<span class="hljs-built_in">i</span>, :), Ytrail(<span class="hljs-built_in">i</span>, :), <span class="hljs-string">'Color'</span>, cMarker(<span class="hljs-built_in">i</span>, :));
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% plot springs</span>
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(Spring, <span class="hljs-number">1</span>)
+        hspr(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">plot</span>(leftPanel, L(<span class="hljs-number">1</span>, [Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)]), L(<span class="hljs-number">2</span>, [Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)]),...
+                      <span class="hljs-string">'-.'</span>, <span class="hljs-string">'Marker'</span>, <span class="hljs-string">'none'</span>, <span class="hljs-string">'LineWidth'</span>, <span class="hljs-number">1.5</span>);
+    <span class="hljs-keyword">end</span>
+    axis equal
+    <span class="hljs-built_in">hold</span> off
+    <span class="hljs-comment">% color bar</span>
+    cmap = colormap(leftPanel, cSpring);
+    caxis(leftPanel, [<span class="hljs-number">-9</span> <span class="hljs-number">9</span>]);
+    caxis(leftPanel, <span class="hljs-string">'manual'</span>);
+    cbar = colorbar();
+    cbar.Label.String = <span class="hljs-string">'String force from compression to extension'</span>;
+    cbar.Label.FontSize = <span class="hljs-number">15</span>;
+    <span class="hljs-comment">% axis lim</span>
+    halfLength = <span class="hljs-built_in">max</span>([<span class="hljs-built_in">max</span>(XHist, [], <span class="hljs-string">'all'</span>)-<span class="hljs-built_in">min</span>(XHist, [], <span class="hljs-string">'all'</span>), <span class="hljs-built_in">max</span>(YHist, [], <span class="hljs-string">'all'</span>)-<span class="hljs-built_in">min</span>(YHist, [], <span class="hljs-string">'all'</span>)]);
+    <span class="hljs-keyword">if</span> halfLength&lt;<span class="hljs-number">5</span>, halfLength=<span class="hljs-number">5</span>;<span class="hljs-keyword">end</span>
+    axisXMin = -halfLength*<span class="hljs-number">1.1</span>;
+    axisXMax = halfLength*<span class="hljs-number">1.1</span>;
+    axisYMin = -halfLength*<span class="hljs-number">1.1</span>;
+    axisYMax = halfLength*<span class="hljs-number">1.1</span>;
+    <span class="hljs-keyword">if</span> strcmp(filename, <span class="hljs-string">'harmonic'</span>)
+        axisXMin=<span class="hljs-number">-2</span>;axisXMax=<span class="hljs-number">20</span>;axisYMin=<span class="hljs-number">-7</span>;axisYMax=<span class="hljs-number">7</span>;
+    <span class="hljs-keyword">elseif</span> strcmp(filename, <span class="hljs-string">'tribody'</span>)
+        axisXMin=<span class="hljs-number">-10</span>;axisXMax=<span class="hljs-number">17</span>;axisYMin=<span class="hljs-number">-8</span>;axisYMax=<span class="hljs-number">8</span>;
+    <span class="hljs-keyword">elseif</span> strcmp(filename, <span class="hljs-string">'square'</span>)
+        axisXMin=<span class="hljs-number">-20</span>;axisXMax=<span class="hljs-number">20</span>;axisYMin=<span class="hljs-number">-20</span>;axisYMax=<span class="hljs-number">20</span>;
+    <span class="hljs-keyword">elseif</span> strcmp(filename, <span class="hljs-string">'stable'</span>)
+        axisXMin=<span class="hljs-number">-22</span>;axisXMax=<span class="hljs-number">22</span>;axisYMin=<span class="hljs-number">-22</span>;axisYMax=<span class="hljs-number">22</span>;
+    <span class="hljs-keyword">end</span>
+    xlim(leftPanel, [axisXMin, axisXMax]);
+    ylim(leftPanel, [axisYMin, axisYMax]);
+
+    <span class="hljs-comment">%% Gravity Field</span>
+    <span class="hljs-comment">% springFocus to accelerate</span>
+    SpringFocus = [];
+    SpringFocusConnected = <span class="hljs-built_in">false</span>(N, <span class="hljs-number">1</span>);
+    SpringFocusConnected(focusIdx) = <span class="hljs-built_in">true</span>;
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(Spring, <span class="hljs-number">1</span>)
+        <span class="hljs-keyword">if</span> Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>)==focusIdx
+            SpringFocus = [SpringFocus; Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>:<span class="hljs-number">4</span>)];  <span class="hljs-comment">%#ok</span>
+            SpringFocusConnected(Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)) = <span class="hljs-built_in">true</span>;
+        <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">if</span> Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)==focusIdx
+            SpringFocus = [SpringFocus; Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">3</span>:<span class="hljs-number">4</span>)];  <span class="hljs-comment">%#ok</span>
+            SpringFocusConnected(Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>)) = <span class="hljs-built_in">true</span>;
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% plot hfieldmass</span>
+    fieldResolution = <span class="hljs-number">50</span>;
+    axisXSpace = (axisXMax - axisXMin) / (fieldResolution<span class="hljs-number">-1</span>);
+    axisYSpace = (axisYMax - axisYMin) / (fieldResolution<span class="hljs-number">-1</span>);
+    [surfX, surfY] = <span class="hljs-built_in">meshgrid</span>(axisXMin:axisXSpace:axisXMax, axisYMax:-axisYSpace:axisYMin);
+    rightPanel = subplot(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">2</span>);
+    <span class="hljs-built_in">hold</span> on
+    hfield = surf(rightPanel, surfX, surfY, <span class="hljs-built_in">zeros</span>(<span class="hljs-built_in">length</span>(surfX), <span class="hljs-built_in">length</span>(surfY)), <span class="hljs-string">'FaceColor'</span>, <span class="hljs-string">'flat'</span>, <span class="hljs-string">'EdgeAlpha'</span>, <span class="hljs-number">0.1</span>);
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:N
+        <span class="hljs-keyword">if</span> ~SpringFocusConnected(<span class="hljs-built_in">i</span>), <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>  <span class="hljs-comment">% only plot connected masses</span>
+        hfieldmass(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">scatter3</span>(rightPanel, L(<span class="hljs-number">1</span>, <span class="hljs-built_in">i</span>), L(<span class="hljs-number">2</span>, <span class="hljs-built_in">i</span>), <span class="hljs-number">0</span>, <span class="hljs-number">40</span>, cMarker(<span class="hljs-built_in">i</span>, :), <span class="hljs-string">'filled'</span>, <span class="hljs-string">'MarkerEdgeColor'</span>, <span class="hljs-string">'b'</span>);
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% legend</span>
+    fakeTarget = <span class="hljs-built_in">scatter3</span>(rightPanel, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">-200</span>, <span class="hljs-number">2</span>, cMarker(focusIdx, :), <span class="hljs-string">'filled'</span>);
+    legend_ = <span class="hljs-built_in">legend</span>(fakeTarget, <span class="hljs-string">'Surface reconstructed using this mass'</span>);
+    legend_.FontSize = <span class="hljs-number">15</span>;
+    legend_.AutoUpdate = <span class="hljs-built_in">false</span>;
+    <span class="hljs-comment">% done</span>
+    grid on
+    <span class="hljs-built_in">hold</span> off
+    view(<span class="hljs-number">3</span>)
+    force = <span class="hljs-built_in">zeros</span>(fieldResolution, fieldResolution, <span class="hljs-number">2</span>);
+    XArr = axisXMin:axisXSpace:axisXMax;
+    YArr = axisYMax:-axisYSpace:axisYMin;
+    xlim(rightPanel, [axisXMin, axisXMax]);
+    ylim(rightPanel, [axisYMin, axisYMax]);
+    zlimMin = <span class="hljs-number">-100</span>;
+    zlimMax = <span class="hljs-number">100</span>;
+    <span class="hljs-keyword">if</span> strcmp(filename, <span class="hljs-string">'harmonic'</span>)
+        zlimMin = <span class="hljs-number">-30</span>;zlimMax = <span class="hljs-number">40</span>;
+    <span class="hljs-keyword">elseif</span> strcmp(filename, <span class="hljs-string">'tribody'</span>)
+        zlimMin = <span class="hljs-number">-100</span>;zlimMax = <span class="hljs-number">150</span>;
+    <span class="hljs-keyword">elseif</span> strcmp(filename, <span class="hljs-string">'square'</span>)
+        zlimMin = <span class="hljs-number">-150</span>;zlimMax = <span class="hljs-number">50</span>;
+    <span class="hljs-keyword">elseif</span> strcmp(filename, <span class="hljs-string">'stable'</span>)
+        zlimMin = <span class="hljs-number">-3e5</span>;zlimMax = <span class="hljs-number">4.5e5</span>;
+    <span class="hljs-keyword">end</span>
+    zlim(rightPanel, [zlimMin, zlimMax]);
+    massZCorrection = <span class="hljs-number">0.01</span> * (zlimMax - zlimMin);
+
+    <span class="hljs-comment">% pauseTime/FPS control</span>
+    pauseTime = <span class="hljs-number">0.0</span>;
+
+    <span class="hljs-comment">%% Start Animation</span>
+    <span class="hljs-keyword">for</span> t = <span class="hljs-number">1</span>:clockmax
+        pause(pauseTime);
+        <span class="hljs-comment">%% Left Panel</span>
+        <span class="hljs-comment">% update points</span>
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:N
+            <span class="hljs-keyword">if</span> A(<span class="hljs-built_in">i</span>), <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>
+            set(h(<span class="hljs-built_in">i</span>), <span class="hljs-string">'xdata'</span>, XHist(<span class="hljs-built_in">i</span>, t), <span class="hljs-string">'ydata'</span>, YHist(<span class="hljs-built_in">i</span>, t));
+        <span class="hljs-keyword">end</span>
+
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:N
+            <span class="hljs-keyword">if</span> A(<span class="hljs-built_in">i</span>), <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>
+            idxStart = t-dequeSize;
+            <span class="hljs-keyword">if</span> idxStart&lt;<span class="hljs-number">1</span>, idxStart=<span class="hljs-number">1</span>;<span class="hljs-keyword">end</span>
+            set(htrail(<span class="hljs-built_in">i</span>), <span class="hljs-string">'xdata'</span>, XHist(<span class="hljs-built_in">i</span>, idxStart:t),...
+                           <span class="hljs-string">'ydata'</span>, YHist(<span class="hljs-built_in">i</span>, idxStart:t));
+        <span class="hljs-keyword">end</span>
+        <span class="hljs-comment">% update spring, update spring color</span>
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(Spring, <span class="hljs-number">1</span>)
+            set(hspr(<span class="hljs-built_in">i</span>), <span class="hljs-string">'xdata'</span>, XHist([Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)], t),...
+                         <span class="hljs-string">'ydata'</span>, YHist([Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>), Spring(<span class="hljs-built_in">i</span>, <span class="hljs-number">2</span>)], t),...
+                         <span class="hljs-string">'Color'</span>, cSpring(colorSprIdx(<span class="hljs-built_in">i</span>, t), :));
+        <span class="hljs-keyword">end</span>
+        <span class="hljs-comment">%% Right Panel</span>
+        force = <span class="hljs-built_in">zeros</span>(fieldResolution, fieldResolution, <span class="hljs-number">2</span>);
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(YArr)
+            <span class="hljs-keyword">for</span> <span class="hljs-built_in">j</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(XArr)
+                <span class="hljs-keyword">for</span> k = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(SpringFocus, <span class="hljs-number">1</span>)
+
+                    p = [XArr(<span class="hljs-built_in">j</span>); YArr(<span class="hljs-built_in">i</span>)];  <span class="hljs-comment">% position of probe</span>
+                    k_ = SpringFocus(k, <span class="hljs-number">1</span>);  <span class="hljs-comment">% idx of connected point</span>
+                    Lk_ = [XHist(k_, t); YHist(k_, t)];  <span class="hljs-comment">% location of k_</span>
+                    r = norm([XHist(k_, t); YHist(k_, t)] - p);
+                    forceElement = SpringFocus(k, <span class="hljs-number">3</span>) .* (r - SpringFocus(k, <span class="hljs-number">2</span>)) .* (Lk_ - p) ./ r;
+                    force(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, <span class="hljs-number">1</span>) = force(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, <span class="hljs-number">1</span>) + forceElement(<span class="hljs-number">1</span>);
+                    force(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, <span class="hljs-number">2</span>) = force(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, <span class="hljs-number">2</span>) + forceElement(<span class="hljs-number">2</span>);
+                <span class="hljs-keyword">end</span>
+            <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">end</span>
+        force = toSmooth(force);
+        Z = -g2s(force(:,:,<span class="hljs-number">1</span>), force(:,:,<span class="hljs-number">2</span>), XArr', YArr');
+
+        Z(Z&gt;zlimMax) = zlimMax;
+        Z(Z&lt;zlimMin) = zlimMin;
+        
+        set(hfield, <span class="hljs-string">'zdata'</span>, Z); <span class="hljs-comment">% update field</span>
+        massZ = interp2(surfX, surfY, Z, XHist(:, t), YHist(:, t));
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:N
+            <span class="hljs-keyword">if</span> ~SpringFocusConnected(<span class="hljs-built_in">i</span>), <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>
+            set(hfieldmass(<span class="hljs-built_in">i</span>), <span class="hljs-string">'xdata'</span>, XHist(<span class="hljs-built_in">i</span>, t), <span class="hljs-string">'ydata'</span>, YHist(<span class="hljs-built_in">i</span>, t), <span class="hljs-string">'zdata'</span>, massZ(<span class="hljs-built_in">i</span>)+massZCorrection);
+        <span class="hljs-keyword">end</span>
+        
+        <span class="hljs-comment">%% update figure</span>
+        drawnow
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%%</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[mSize]</span> = <span class="hljs-title">calcSize</span><span class="hljs-params">(M)</span></span>
+
+    low = <span class="hljs-number">32</span>;
+    high = <span class="hljs-number">90</span>;
+    minM = <span class="hljs-built_in">min</span>(M);
+    mSize = low .* (M ./ minM);
+    mSize(mSize &gt; high) = high;
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[force]</span> = <span class="hljs-title">toSmooth</span><span class="hljs-params">(force)</span></span>
+    
+    forceAbs = <span class="hljs-built_in">abs</span>(force);
+    forceMax = quantile(forceAbs(:), <span class="hljs-number">0.98</span>);
+    force(force&gt;forceMax) = forceMax;
+    force(force&lt;-forceMax) = -forceMax;
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[massZ]</span> = <span class="hljs-title">calcZ</span><span class="hljs-params">(Z, L, XArr, YArr)</span></span>
+    
+    massZ = <span class="hljs-built_in">zeros</span>(<span class="hljs-number">1</span>, <span class="hljs-built_in">size</span>(L, <span class="hljs-number">2</span>));
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(L, <span class="hljs-number">2</span>)
+        xx = <span class="hljs-number">1</span>;
+        yy = <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">j</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(XArr)
+            <span class="hljs-keyword">if</span> XArr(<span class="hljs-built_in">j</span>)&gt;L(<span class="hljs-number">1</span>, <span class="hljs-built_in">i</span>)
+               xx = <span class="hljs-built_in">j</span>;
+               <span class="hljs-keyword">break</span>;
+            <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">for</span> <span class="hljs-built_in">j</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(YArr)
+            <span class="hljs-keyword">if</span> YArr(<span class="hljs-built_in">j</span>)&lt;L(<span class="hljs-number">2</span>, <span class="hljs-built_in">i</span>)
+               yy = <span class="hljs-built_in">j</span>;
+               <span class="hljs-keyword">break</span>;
+            <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">end</span>
+        massZ(<span class="hljs-built_in">i</span>) = Z(yy, xx) + <span class="hljs-number">0.2</span>;
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</div></code></pre>
 
     </body>
     </html>

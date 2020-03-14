@@ -37,13 +37,13 @@ $$
 The program uses vector operations to accelerate here. 
 #### 2.2 3D Visualization
 We need to choose a focusing mass to visualize the potential energy field that particular mass feels. Notice different choice of focusing masses will lead to completely different surfaces.  
-The visualization of the potential enerygy field is achieved by moving the focusing mass to a set of pre-calculated locations in the plane. The resultant force at each point is then calculated. The next step is to reconstruct a surface based on those forces. Technically this is an reverse-gradient operation. Finally we interpolate the surface to visualize it in 3D. Many other details need to be taken care of to achieve stable result and they will not be elaborated here.  
+The visualization of the potential energy field is achieved by moving the focusing mass to a set of pre-calculated locations in the plane. The resultant force at each point is then calculated. The next step is to reconstruct a surface based on those forces. Technically this is a reverse-gradient operation. Finally we interpolate the surface to visualize it in 3D. Many other details need to be taken care of to achieve stable result and they will not be elaborated here.  
 #### 2.2.1 Reverse-gradient
-Let $Z$ be the surface, $Z_0$ be the sampe results that represent gradients, the goal is to minimize the cost function
+Let $Z$ be the surface, $Z_0$ be the sample results that represent gradients, the goal is to minimize the cost function
 $$
 ||\text{gradient}(Z)-Z_0||_2
 $$
-This problem has been well researched. After trying several methods, an implementation$^{[1]}$ turns out to have the best performace and is adopted.
+This problem has been well researched. After trying several methods, an implementation$^{[1]}$ turns out to have the best performance and is adopted.
 
 ***
 
@@ -65,7 +65,7 @@ Take a simple harmonic motion as example. Left hand side is 2D visualization whe
 ***
 
 ### 4. Tests
-To make sure the program is correctly coded, I designed a tribody senario where three masses are placed at the vertices of a regular triangle, with zero initial velocity.  
+To make sure the program is correctly coded, I designed a tribody scenario where three masses are placed at the vertices of a regular triangle, with zero initial velocity.  
 The simulation went as we speculated. It is a periodic motion, and each mass is doing simple harmonic motion in its own direction.  
 I tried to change simulation step $\Delta t$ in different scales and the result is quite stable. **This step has been repeated for all coming test cases.**  
 The 3D surface is reconstructed focusing on the blue dot. It is very reasonable throughout the movie.
@@ -80,26 +80,26 @@ We place four masses at the vertices of a regular square, with some initial velo
 
 #### 5.2 Stable
 One of my goal is to create a stable system using springs. This is much easier than a stable system in space because we can control which two masses are connected by springs.  
-This is the most complicated system among all those I created that works. We have a central mass (light blue) conneced with five masses, each with different location and velocity. One of them has its own three smaller masses surrounding.
+This is the most complicated system among all those I created that works. We have a central mass (light blue) connected with five masses, each with different location and velocity. One of them has its own three smaller masses surrounding.
 This system can be stable for a long time, but due to structural design failure, it will eventually collapse. There is no simple fix to this structure.  
 It is interesting that, if we look at the 3D surface reconstructed by the central mass, we will notice that the surface is changing shape dramatically, but that point always stays at the bottom of the valley. That is the reason why this system is stable. Of course, mathematical calculation shows it still moves a little bit, and the movement will accumulate. 
 ![ff1](4.PNG)
 
 #### 5.3 Self-stable
-I also want to design a system where it tends to balance itself, which means a tiny disturbance from outside will be be magnified, but instead attenuated. A real life example can be found
+I also want to design a system where it tends to balance itself, which means a tiny disturbance from outside will be magnified, but instead attenuated. A real life example can be found
 [here](https://idsc.ethz.ch/research-dandrea/research-projects/archive/balancing-cube.html).
 I assume we need some energy input to achieve this, but I never succeeded. 
 
 ***
 
-### 6. Refrence
+### 6. Reference
 - (1) Matthew Harker, Paul O'Leary, (2020). Surface Reconstruction from Gradient Fields: grad2Surf Version 1.0 (https://www.mathworks.com/matlabcentral/fileexchange/43149-surface-reconstruction-from-gradient-fields-grad2surf-version-1-0), MATLAB Central File Exchange. Retrieved March 13, 2020.
 - (2) Víctor Martínez-Cagigal (2020). Whitish Jet Colormap (https://www.mathworks.com/matlabcentral/fileexchange/67415-whitish-jet-colormap), MATLAB Central File Exchange. Retrieved March 14, 2020.
 
 ***
 
 ### Appendix A How to run the code
-You can run the code in realtime, with any setup. No need to wait for a long time to create a movie. This is achieved by splitting the project into two parts:
+You can run the code in real time, with any setup. No need to wait for a long time to create a movie. This is achieved by splitting the project into two parts:
 - part A: SpringSimulation.m that does all simulation and stores the data into a mat file. It can be configured to disable all visual output for speed consideration.
 - part B: GravityField.m that reads the mat file and calculate 2D and 3D visualization. It supports 'fast forward'.
 
@@ -116,7 +116,7 @@ You can also create your own 'RunSpringXXX' script with arbitary setup to play a
 ***
 
 ### Appendix B SpringSimulation.m
-```{MATLAB}
+```Matlab
 %% spring system simulation
 % The main script to run simulation
 % Use 'GravityField' to visualize the gravity field after running this
@@ -388,7 +388,7 @@ end
 ***
 
 ### Appendix C GravityField
-```{MATLAB}
+```Matlab
 function [] = GravityField(filename, focusIdx, fastForward)
 % Visualize the gravity field based on the stored data
 % 'filename' should be a 'mat' file created by 'SaveData.m'
