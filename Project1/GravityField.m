@@ -54,6 +54,8 @@ function [] = GravityField(filename, focusIdx, fastForward)
         dequeSize = 1;
     elseif strcmp(filename, 'tribody')
         dequeSize = 200;
+    elseif strcmp(filename, 'stable')
+        dequeSize = 200;
     end
     Xtrail = ones(N, dequeSize) .* L(1, :)';
     Ytrail = ones(N, dequeSize) .* L(2, :)';

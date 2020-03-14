@@ -25,7 +25,7 @@ Spring = [
       1    9    1   1200;
     ];
 % simulation parameters
-tmax = 2;
+tmax = 2.5;
 dt = 0.0002;
 clockmax = tmax / dt;
 % visualization parameters
