@@ -12,6 +12,9 @@ dt = o.dt;
 clockMax = ceil(simulationTime / dt);
 roadArray = o.roadArray;
 nodeArray = o.nodeArray;
+for i = 1:length(nodeArray)  % Add a new field to 'nodeArray'
+    nodeArray(i).straightPriority = [];
+end
 
 %% Initialization
 % carArray
@@ -37,18 +40,25 @@ carRecord = cell(1, clockMax);
 rng(1);
 
 %% Simulation
+count = 0;
 for clock = 1:clockMax
     % generate cars / set destination to idle cars
     GenerateNewRoutes();
-    % update road.queue to get new cars on road
-    UpdateRoadQueue();
     % update velocity of cars currently on road
     UpdateVelocity();
     % move cars & delete arrived cars
     MoveCar();
+    % update road.queue to get new cars on road
+    UpdateRoadQueue();
 
     % data recording
     carRecord{clock} = carArray;
+    % progress bar
+    if count > 400
+        fprintf('Simulation Progress %.2f\n', clock/clockMax);
+        count = 0;
+    end
+    count = count + 1;
 end
   
 trafficRecord.carRecord = carRecord;
@@ -162,8 +172,8 @@ function [] = GenerateNewRoutes()
             end
         end
     end
-    
-    
+
+
     %% double nested function: Get the index of an idle car. Generate a new
     %  car if there is none.
     function [res] = GetIdleCar()
@@ -230,6 +240,9 @@ function [] = UpdateRoadQueue()
             carArray(backCarIdx).position * roadArray(ii).length < dmin)
             % this road is full now
             continue;
+        elseif ~isempty(nodeArray(roadArray(ii).nodeStart).straightPriority)
+            % straight traffic goes first
+            continue;
         else
             % good to go!
             carArray(queueCarIdx).frontCar = backCarIdx;
@@ -249,7 +262,7 @@ end
 
 %% nested function: update the velocity of cars on roads
 function [] = UpdateVelocity()
-    
+
     % update velocity
     for ii = 1:length(roadArray)
         carIdx = roadArray(ii).backCar;
@@ -268,9 +281,16 @@ function [] = UpdateVelocity()
                     else
                         % calculate the dist to the car on next road
                         currentRoadIdx = carArray(carIdx).roadArray(1);
-                        dist = (1 - carArray(carIdx).position) * roadArray(currentRoadIdx).length;
-                        dist = dist + carArray(nextCarIdx).position * roadArray(nextRoadIdx).length;
+                        dist_ = (1 - carArray(carIdx).position) * roadArray(currentRoadIdx).length;
+                        dist = dist_ + carArray(nextCarIdx).position * roadArray(nextRoadIdx).length;
                         carArray(carIdx).velocity = Velocity(dist);
+                        % add my carIdx to straightPriority if not there
+                        if (dist_ < dmin)
+                            nodeIdx = roadArray(currentRoadIdx).nodeEnd;
+                            if isempty(find(nodeArray(nodeIdx).straightPriority == carIdx, 1))
+                                nodeArray(nodeIdx).straightPriority = [nodeArray(nodeIdx).straightPriority, carIdx];
+                            end
+                        end
                     end
                 end
             else
@@ -305,9 +325,9 @@ function [] = MoveCar()
         deltaDist = carArray(ii).velocity * dt;
         roadLength = roadArray(carArray(ii).roadNum).length;
         carArray(ii).position = carArray(ii).position + deltaDist / roadLength;
-        
+
         if (carArray(ii).position > 1)  % end of current road
-            
+
             carArray(ii).roadArray(1) = [];
             if isempty(carArray(ii).roadArray)  % destination arrived
                 currentRoadIdx = carArray(ii).roadNum;
@@ -350,6 +370,12 @@ function [] = MoveCar()
                 roadArray(nextRoadIdx).backCar = ii;
                 if (roadArray(nextRoadIdx).frontCar == 0)
                     roadArray(nextRoadIdx).frontCar = ii;
+                end
+                % update node
+                nodeIdx = roadArray(currentRoadIdx).nodeEnd;
+                idx = find(nodeArray(nodeIdx).straightPriority == ii);
+                if ~isempty(idx)
+                    nodeArray(nodeIdx).straightPriority(idx) = [];
                 end
             end
         end

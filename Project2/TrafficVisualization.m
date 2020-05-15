@@ -17,6 +17,7 @@ roadArray = trafficRecord.roadArray;
 roadArray(1).xyStart = [];  % Add two new fields to 'roadArray'
 roadArray(1).unitVec = [];
 nodeArray = trafficRecord.nodeArray;
+nodeArray(1).xy = [];  % Add one new field to 'nodeArray'
 carRecord = trafficRecord.carRecord;
 visArray = trafficRecord.visArray;
 assert(length(visArray) == length(nodeArray));
@@ -57,14 +58,21 @@ end
 %% Prepare handles of cars
 carSize = 14;
 hcar = zeros(1, length(roadArray));
+hqueue = zeros(1, length(nodeArray));
 for i = 1:length(roadArray)
     hcar(i) = scatter(0, 0, carSize, 'black', 'filled', 'MarkerEdgeColor', 'black');
 end
-
+randPosSize = 2000;
+randPos = rand(randPosSize, 1);  % a pre-calculated random position array
+randPos = [cos(randPos.*2.*pi), sin(randPos.*2.*pi)];
+randPos = randPos .* (rand(randPosSize, 1)+0.2) ./ 1.4 .* nodeRadius;
+for i = 1:length(nodeArray)
+    hqueue(i) = scatter(0, 0, carSize, 'black', 'filled', 'MarkerEdgeColor', 'black');
+end
 
 %% Start Animation
 pauseTime = 0.05;  % pauseTime/FPS control
-if (fastForward>1), pauseTime=0;end  % do not pause if fast forward
+if (fastForward>1), pauseTime=0;end  % do not pause if fast forward is set
 for clock = 1:length(carRecord)
     
     pause(pauseTime);
@@ -85,8 +93,25 @@ for clock = 1:length(carRecord)
         set(hcar(i), 'xdata', loc(:, 1), 'ydata', loc(:, 2), 'cdata', Velocity2Color(velocity));
     end
     % plot cars in queue (alive == 2)
-    for i = 1:length(roadArray)
-        
+    roadNum = [queueCar.roadNum];
+    if isempty(roadNum)
+        nodeNum = [];
+    else
+        nodeNum = [roadArray(roadNum).nodeStart];
+    end
+    for i = 1:length(nodeArray)
+        num = nnz(nodeNum == i);
+        if (num==0)
+            set(hqueue(i), 'xdata', [], 'ydata', []);
+            continue;
+        end
+        if (num>50), num=50;end  % dont plot too many dots in the waiting area
+        startIdx = randi(randPosSize-1-num);
+        loc = randPos(startIdx:startIdx+num-1, :);
+        loc = loc + nodeArray(i).xy;
+        velocity = zeros(num, 1);
+        % plot
+        set(hqueue(i), 'xdata', loc(:, 1), 'ydata', loc(:, 2), 'cdata', Velocity2Color(velocity));
     end
     
     % update figure
@@ -112,6 +137,8 @@ function [] = DrawOnewayRoad(idx)
     % set new fields
     roadArray(idx).xyStart = [x0, y0];
     roadArray(idx).unitVec = [x1-x0, y1-y0]/dist;
+    nodeArray(roadArray(idx).nodeStart).xy = [x0, y0];
+    nodeArray(roadArray(idx).nodeEnd).xy = [x1, y1];
 end
 
 
@@ -138,6 +165,8 @@ function [] = DrawTwowayRoad(idx)
     imageIdx = roadArray(idx).imageRoad;
     roadArray(imageIdx).xyStart = [x1, y1] + dispVec + 0.5 .* orthVec;
     roadArray(imageIdx).unitVec = -[x1-x0, y1-y0]/dist;
+    nodeArray(roadArray(idx).nodeStart).xy = [x0, y0];
+    nodeArray(roadArray(idx).nodeEnd).xy = [x1, y1];
 end
 
 

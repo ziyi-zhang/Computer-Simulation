@@ -10,7 +10,7 @@ o.roadArray = struct(...
 
 o.nodeArray = struct(...
     ...% node idx  1  2  3  4
-    'spawnRate',  {0.1, 0.2, 0.3, 0.4},...
+    'spawnRate',  {1, 0.2, 0.3, 0.4},...
     'destChance', {1, 1, 1, 1}...
 );
 
@@ -27,7 +27,7 @@ o.vmax = 22.2;  % meters/second
 o.dmin = 5;  % meters
 o.dmax = 100;  % meters
 % Simulation speed
-o.simulationTime = 30;  % in seconds
+o.simulationTime = 100;  % in seconds
 o.dt = 0.1;  % in seconds
 
 % Run Simulation
