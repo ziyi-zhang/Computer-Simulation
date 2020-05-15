@@ -101,6 +101,9 @@ function [trafficRecord_] = InitTrafficRecord()
     trafficRecord_.clockMax = clockMax;
     trafficRecord_.roadArray = roadArray;
     trafficRecord_.nodeArray = nodeArray;
+    if (isfield(o, 'visArray') && length(o.visArray)==length(nodeArray))
+        trafficRecord_.visArray = o.visArray;
+    end
 end
 
 
