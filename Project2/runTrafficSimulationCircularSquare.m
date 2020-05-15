@@ -1,0 +1,26 @@
+% runTrafficSimulationCircularSquare
+
+o.roadArray = struct(...
+    ...% road idx  1   2   3   4
+    'nodeStart',  {1,  2,  3,  4  },...
+    'nodeEnd',    {2,  3,  4,  1  },...
+    'length',     {1e3,1e3,1e3,1e3},...
+    'imageRoad',  {0,  0,  0,  0  }...
+);
+
+o.nodeArray = struct(...
+    ...% node idx  1  2  3  4
+    'spawnRate',  {1, 1, 1, 1},...
+    'destChance', {1, 1, 1, 1}...
+);
+
+% car speed
+o.vmax = 22.2;  % meters/second
+o.dmin = 5;  % meters
+o.dmax = 100;  % meters
+% Simulation speed
+o.simulationTime = 10;  % in seconds
+o.dt = 0.1;  % in seconds
+
+% Run Simulation
+TrafficSimulation(o);
