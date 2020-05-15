@@ -55,9 +55,10 @@ end
 
 
 %% Prepare handles of cars
-carSize = 10;
+carSize = 14;
+hcar = zeros(1, length(roadArray));
 for i = 1:length(roadArray)
-    hcar(i) = scatter(0, 0, carSize, 'black', 'filled');
+    hcar(i) = scatter(0, 0, carSize, 'black', 'filled', 'MarkerEdgeColor', 'black');
 end
 
 
@@ -91,6 +92,7 @@ for clock = 1:length(carRecord)
     % update figure
     drawnow
 end
+disp("Traffic movie done.");
 
 
 %% nested function: draw one-way road
@@ -109,7 +111,7 @@ function [] = DrawOnewayRoad(idx)
     patch([x0-orthVec(1), x1-orthVec(1)], [y0-orthVec(2), y1-orthVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
     % set new fields
     roadArray(idx).xyStart = [x0, y0];
-    roadArray(idx).unitVec = [y0-y1, x1-x0]/dist;
+    roadArray(idx).unitVec = [x1-x0, y1-y0]/dist;
 end
 
 
@@ -145,11 +147,11 @@ function [res] = Velocity2Color(speed)
     persistent carColor gap
     
     if isempty(carColor)
-        carColor = parula(101);
+        carColor = parula(102);
         gap = vmax / 100;
     end
 
-    res = carColor(ceil(speed / gap), :);
+    res = carColor(floor(speed / gap)+1, :);
 end
 end
 

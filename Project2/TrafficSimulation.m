@@ -173,26 +173,20 @@ function [] = GenerateNewRoutes()
                 return;
             end
         end
-        % no idle car left, generate ten new cars
-        tempCarArray.velocity = 0;
-        tempCarArray.roadNum = 0;
-        tempCarArray.position = 0;
-        tempCarArray.frontCar = 0;
-        tempCarArray.backCar = 0;
-        tempCarArray.alive = 0;
-        tempCarArray.roadArray = carArray(1).roadArray;  % it should be empty, assign as this temporarily to bypass a bug in concatenation
-        numIdleCar = length(carArray);  % double the length every time
-        tempCarArray = repmat(tempCarArray, 1, numIdleCar);
-        % concatenate two struct arrays
-        table1 = struct2table(carArray);
-        table2 = struct2table(tempCarArray);
-        mergedTable = [table1; table2];
-        carArray = table2struct(mergedTable);
-        for iii = length(carArray)/2+1:length(carArray)
+        % no idle car left, generate some new cars
+        num = length(carArray);
+        carArray(num+1:num*2) = carArray(1:num);  % double the size every time
+        for iii = num+1:num*2
+            carArray(iii).velocity = 0;
+            carArray(iii).roadNum = 0;
+            carArray(iii).position = 0;
+            carArray(iii).frontCar = 0;
+            carArray(iii).backCar = 0;
+            carArray(iii).alive = 0;
             carArray(iii).roadArray = [];
         end
 
-        res = length(carArray) - numIdleCar + 1;
+        res = num + 1;
     end
     
     
@@ -203,8 +197,8 @@ function [] = GenerateNewRoutes()
             res = GetRoadIndex(origin, dest);
             return;
         else
-            res = GetRoadIndex(origin, path(origin, dest));
-            res = [res, GetRoadIndex(path(origin, dest), dest)];
+            res = GenerateRoadArray(origin, path(origin, dest));
+            res = [res, GenerateRoadArray(path(origin, dest), dest)];
         end
     end
 end

@@ -3,7 +3,10 @@
 function [path] = FloydShortestPath(roadArray, N)
 
     cost = ones(N, N) .* 1e10;
-    path = zeros(N, N);
+    for i = 1:N
+        cost(i, i) = 0;
+    end
+    path = zeros(N, N);  % 0 for no route
     for i = 1:length(roadArray)
         cost(roadArray(i).nodeStart, roadArray(i).nodeEnd) = roadArray(i).length;
         path(roadArray(i).nodeStart, roadArray(i).nodeEnd) = -1;  % indicates a direct path
