@@ -29,6 +29,7 @@ o.dmax = 100;  % meters
 % Simulation speed
 o.simulationTime = 30;  % in seconds
 o.dt = 0.1;  % in seconds
+o.fastForward = 1;
 
 % Run Simulation
 TrafficSimulation(o);

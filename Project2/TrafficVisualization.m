@@ -15,7 +15,7 @@ dt = trafficRecord.dt;
 clockMax = trafficRecord.clockMax;
 roadArray = trafficRecord.roadArray;
 roadArray(1).xyStart = [];  % Add two new fields to 'roadArray'
-roadArray(1).unitVec = [];
+roadArray(1).vec = [];
 nodeArray = trafficRecord.nodeArray;
 nodeArray(1).xy = [];  % Add one new field to 'nodeArray'
 carRecord = trafficRecord.carRecord;
@@ -87,7 +87,7 @@ for clock = 1:length(carRecord)
             continue;
         end
         loc = repmat(roadArray(i).xyStart, length(cars), 1);
-        loc = loc + roadArray(i).unitVec .* [cars.position]';
+        loc = loc + roadArray(i).vec .* [cars.position]';
         velocity = [cars.velocity];
         % plot
         set(hcar(i), 'xdata', loc(:, 1), 'ydata', loc(:, 2), 'cdata', Velocity2Color(velocity));
@@ -136,7 +136,7 @@ function [] = DrawOnewayRoad(idx)
     patch([x0-orthVec(1), x1-orthVec(1)], [y0-orthVec(2), y1-orthVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
     % set new fields
     roadArray(idx).xyStart = [x0, y0];
-    roadArray(idx).unitVec = [x1-x0, y1-y0]/dist;
+    roadArray(idx).vec = [x1-x0, y1-y0];
     nodeArray(roadArray(idx).nodeStart).xy = [x0, y0];
     nodeArray(roadArray(idx).nodeEnd).xy = [x1, y1];
 end
@@ -161,10 +161,10 @@ function [] = DrawTwowayRoad(idx)
     patch([x1+orthVec(1)+dispVec(1), x0+orthVec(1)+dispVec(1)], [y1+orthVec(2)+dispVec(2), y0+orthVec(2)+dispVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
     % set new fields
     roadArray(idx).xyStart = [x0, y0] - dispVec - 0.5 .* orthVec;
-    roadArray(idx).unitVec = [x1-x0, y1-y0]/dist;
+    roadArray(idx).vec = [x1-x0, y1-y0];
     imageIdx = roadArray(idx).imageRoad;
     roadArray(imageIdx).xyStart = [x1, y1] + dispVec + 0.5 .* orthVec;
-    roadArray(imageIdx).unitVec = -[x1-x0, y1-y0]/dist;
+    roadArray(imageIdx).vec = -[x1-x0, y1-y0];
     nodeArray(roadArray(idx).nodeStart).xy = [x0, y0];
     nodeArray(roadArray(idx).nodeEnd).xy = [x1, y1];
 end

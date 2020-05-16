@@ -10,7 +10,11 @@ dmax = o.dmax;
 simulationTime = o.simulationTime;
 dt = o.dt;
 clockMax = ceil(simulationTime / dt);
+fastForward = o.fastForward;
 roadArray = o.roadArray;
+for i = 1:length(roadArray)
+    roadArray(i).cost = roadArray(i).length;
+end
 nodeArray = o.nodeArray;
 for i = 1:length(nodeArray)  % Add a new field to 'nodeArray'
     nodeArray(i).straightPriority = [];
@@ -35,12 +39,14 @@ end
 path = FloydShortestPath(roadArray, length(nodeArray));
 % data recording
 trafficRecord = InitTrafficRecord();
-carRecord = cell(1, clockMax);
+carRecord = cell(1, ceil(clockMax/fastForward));
 % random number generator
 rng(1);
 
 %% Simulation
 count = 0;
+storeCount = 1;
+time = 0;
 for clock = 1:clockMax
     % generate cars / set destination to idle cars
     GenerateNewRoutes();
@@ -51,8 +57,17 @@ for clock = 1:clockMax
     % update road.queue to get new cars on road
     UpdateRoadQueue();
 
+    time = time + dt;
+    if (time > 1)  % re-calculate Floyd every five seconds
+        time = 0;
+        UpdateCost();
+    end
+
     % data recording
-    carRecord{clock} = carArray;
+    if (mod(clock, fastForward) == 0)
+        carRecord{storeCount} = carArray;
+        storeCount = storeCount + 1;
+    end
     % progress bar
     if count > 400
         fprintf('Simulation Progress %.2f\n', clock/clockMax);
@@ -61,6 +76,7 @@ for clock = 1:clockMax
     count = count + 1;
 end
   
+disp("Saving data...");
 trafficRecord.carRecord = carRecord;
 filename = string(datestr(now,'yyyy-mm-dd-HH-MM')) + ".mat";
 save(filename, 'trafficRecord');
@@ -85,7 +101,7 @@ function [] = checkInput()
     end
     % check nodeArray
     for ii = 1:length(o.nodeArray)
-        if (o.nodeArray(ii).spawnRate < 0 || o.nodeArray(ii).spawnRate > 1)
+        if (o.nodeArray(ii).spawnRate < 0 || o.nodeArray(ii).spawnRate > 5)
             error("nodeArray input invalid: 'spawnRate'.");
         end
         if (o.nodeArray(ii).destChance < 0)
@@ -156,6 +172,7 @@ function [] = GenerateNewRoutes()
         randNumDest = rand(1);
         for iii = 1:length(nodeArray)
             if (iii == origin), continue;end
+            if (path(origin, iii) == 0), continue;end  % no route
             sum = sum + nodeArray(iii).destChance;
             if (sum / localDestChanceSum > randNumDest)
                 % the iii-th node is chosen to be destination
@@ -394,6 +411,19 @@ function [] = MoveCar()
         carArray(idx).alive = 0;
         carArray(idx).roadArray = [];
     end
+end
+
+
+%% nested function: update the cost of each edge in graph based on rael-time traffic
+function [] = UpdateCost()
+
+    cars = carArray(([carArray.alive] == 1) | ([carArray.alive] == 2));
+    for ii = 1:length(roadArray)
+        numCars = nnz([cars.roadNum] == ii) + 1;
+        roadArray(ii).cost = roadArray(ii).length + numCars * dmin * 2;
+    end
+    % call floyd again
+    path = FloydShortestPath(roadArray, length(nodeArray));
 end
 end
 
