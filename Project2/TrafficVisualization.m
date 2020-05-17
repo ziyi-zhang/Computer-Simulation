@@ -21,6 +21,10 @@ nodeArray(1).xy = [];  % Add one new field to 'nodeArray'
 carRecord = trafficRecord.carRecord;
 visArray = trafficRecord.visArray;
 assert(length(visArray) == length(nodeArray));
+megaNode = [];
+if isfield(trafficRecord, 'megaNode')
+    megaNode = trafficRecord.megaNode;
+end
 
 %% Fast forward
 carRecord = carRecord(1:fastForward:end);
@@ -49,16 +53,16 @@ for i = 1:length(roadArray)
     end
 end
 % nodes
-megaNode = [1, 8, 12];
 pseudoNode = [19, 20];
 for i = 1:length(visArray)
     r = nodeRadius;
-    col = 'white';
+    col = '#DDDDDD';
     if ~isempty(find(megaNode == i, 1))
         r = nodeRadius * 1.6;
         col = '#EDB120';
     elseif ~isempty(find(pseudoNode == i, 1))
-        r = nodeRadius * 0.5;
+        r = nodeRadius * 0.8;
+        col = 'white';
     end
     coord = [visArray(i).x-r, visArray(i).y-r, 2*r, 2*r];
     rectangle('Position', coord, 'Curvature', [1, 1], 'FaceColor', col, 'EdgeColor', 'black');

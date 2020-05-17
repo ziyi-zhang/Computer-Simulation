@@ -102,7 +102,7 @@ function [] = checkInput()
     end
     % check nodeArray
     for ii = 1:length(o.nodeArray)
-        if (o.nodeArray(ii).spawnRate < 0 || o.nodeArray(ii).spawnRate > 5)
+        if (o.nodeArray(ii).spawnRate < 0 || o.nodeArray(ii).spawnRate > 20)
             error("nodeArray input invalid: 'spawnRate'.");
         end
         if (o.nodeArray(ii).destChance < 0)
@@ -131,6 +131,9 @@ function [trafficRecord_] = InitTrafficRecord()
     trafficRecord_.timeToArrive = [];
     if (isfield(o, 'visArray') && length(o.visArray)==length(nodeArray))
         trafficRecord_.visArray = o.visArray;
+    end
+    if (isfield(o, 'megaNode'))
+        trafficRecord_.megaNode = o.megaNode;
     end
 end
 
