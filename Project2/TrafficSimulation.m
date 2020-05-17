@@ -28,6 +28,7 @@ carArray.position = 0;
 carArray.frontCar = 0;
 carArray.backCar = 0;
 carArray.alive = 0;
+carArray.birthTick = 0;
 carArray.roadArray = [];
 carArray = repmat(carArray, 1, 10);  % initialize a car pool with ten inactivated cars
 % roadArray
@@ -127,6 +128,7 @@ function [trafficRecord_] = InitTrafficRecord()
     trafficRecord_.clockMax = clockMax;
     trafficRecord_.roadArray = roadArray;
     trafficRecord_.nodeArray = nodeArray;
+    trafficRecord_.timeToArrive = [];
     if (isfield(o, 'visArray') && length(o.visArray)==length(nodeArray))
         trafficRecord_.visArray = o.visArray;
     end
@@ -180,6 +182,7 @@ function [] = GenerateNewRoutes()
                 carPath = GenerateRoadArray(origin, iii);
                 carArray(carIndex).roadNum = carPath(1);
                 carArray(carIndex).alive = 2;
+                carArray(carIndex).birthTick = clock;
                 carArray(carIndex).roadArray = carPath;
                 % append to the waiting queue of this road
                 roadIdx = carPath(1);
@@ -210,6 +213,7 @@ function [] = GenerateNewRoutes()
             carArray(iii).frontCar = 0;
             carArray(iii).backCar = 0;
             carArray(iii).alive = 0;
+            carArray(iii).birthTick = 0;
             carArray(iii).roadArray = [];
         end
 
@@ -403,12 +407,15 @@ function [] = MoveCar()
     % destination
     function [] = DeleteCar(idx)
         
+        seconds = dt * (clock-carArray(idx).birthTick);
+        trafficRecord.timeToArrive = [trafficRecord.timeToArrive, seconds];
         carArray(idx).velocity = 0;
         carArray(idx).roadNum = 0;
         carArray(idx).position = 0;
         carArray(idx).frontCar = 0;
         carArray(idx).backCar = 0;
         carArray(idx).alive = 0;
+        carArray(idx).birthTick = 0;
         carArray(idx).roadArray = [];
     end
 end
@@ -420,7 +427,7 @@ function [] = UpdateCost()
     cars = carArray(([carArray.alive] == 1) | ([carArray.alive] == 2));
     for ii = 1:length(roadArray)
         numCars = nnz([cars.roadNum] == ii) + 1;
-        roadArray(ii).cost = roadArray(ii).length + numCars * dmin * 2;
+        roadArray(ii).cost = roadArray(ii).length + numCars * dmin * 6;
     end
     % call floyd again
     path = FloydShortestPath(roadArray, length(nodeArray));

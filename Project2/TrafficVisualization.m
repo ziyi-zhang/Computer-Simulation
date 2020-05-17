@@ -49,9 +49,19 @@ for i = 1:length(roadArray)
     end
 end
 % nodes
+megaNode = [1, 8, 12];
+pseudoNode = [19, 20];
 for i = 1:length(visArray)
-    coord = [visArray(i).x-nodeRadius, visArray(i).y-nodeRadius, 2*nodeRadius, 2*nodeRadius];
-    rectangle('Position', coord, 'Curvature', [1, 1], 'FaceColor', 'white', 'EdgeColor', 'black');
+    r = nodeRadius;
+    col = 'white';
+    if ~isempty(find(megaNode == i, 1))
+        r = nodeRadius * 1.6;
+        col = '#EDB120';
+    elseif ~isempty(find(pseudoNode == i, 1))
+        r = nodeRadius * 0.5;
+    end
+    coord = [visArray(i).x-r, visArray(i).y-r, 2*r, 2*r];
+    rectangle('Position', coord, 'Curvature', [1, 1], 'FaceColor', col, 'EdgeColor', 'black');
 end
 
 
@@ -73,7 +83,7 @@ end
 %% Start Animation
 pauseTime = 0.05;  % pauseTime/FPS control
 if (fastForward>1), pauseTime=0;end  % do not pause if fast forward is set
-for clock = 1:length(carRecord)
+for clock = 1:length(carRecord)-2
     
     pause(pauseTime);
     carArray = carRecord{clock};
@@ -131,7 +141,7 @@ function [] = DrawOnewayRoad(idx)
     orthVec = [y0-y1, x1-x0]/dist;  % unit vector, anti-clockwise 90 degrees + from start to end
     orthVec = orthVec .* roadWidth ./ 2;
     copperColormap = copper(100);
-    colormap(copperColormap(1:70, :));
+    colormap(copperColormap(1:85, :));
     patch([x0+orthVec(1), x1+orthVec(1)], [y0+orthVec(2), y1+orthVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
     patch([x0-orthVec(1), x1-orthVec(1)], [y0-orthVec(2), y1-orthVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
     % set new fields
@@ -154,7 +164,7 @@ function [] = DrawTwowayRoad(idx)
     dispVec = orthVec .* roadWidth .* 0.2;
     orthVec = orthVec .* roadWidth;
     copperColormap = copper(100);
-    colormap(copperColormap(1:70, :));
+    colormap(copperColormap(1:85, :));
     patch([x0-dispVec(1), x1-dispVec(1)], [y0-dispVec(2), y1-dispVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
     patch([x0-orthVec(1)-dispVec(1), x1-orthVec(1)-dispVec(1)], [y0-orthVec(2)-dispVec(2), y1-orthVec(2)-dispVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
     patch([x1+dispVec(1), x0+dispVec(1)], [y1+dispVec(2), y0+dispVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
