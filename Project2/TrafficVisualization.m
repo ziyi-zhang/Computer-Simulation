@@ -85,7 +85,7 @@ for i = 1:length(nodeArray)
 end
 
 %% Start Animation
-pauseTime = 0.05;  % pauseTime/FPS control
+pauseTime = 0.00;  % pauseTime/FPS control
 if (fastForward>1), pauseTime=0;end  % do not pause if fast forward is set
 for clock = 1:length(carRecord)-2
     

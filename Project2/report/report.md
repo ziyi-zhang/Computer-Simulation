@@ -42,6 +42,26 @@ Since the system accepts any directed graph, we need an efficient path-finding a
 The problem with any shortest path algorithm is that it does not take congestion into account. All the traffic will flood in one road while another adjacent road is completely empty because it is a little "longer".  
 In order to solve this problem, the program will take both traffic amount and road length into consideration to find the fastest (not shortest) path. The Floyd table will be updated every second such that the fastest path is changing in accordance to the real-time road condition.  
 There is an example to illustrate this.
+#### 2.3 How does the simulation work?
+```MATLAB
+for clock = 1:clockMax
+    % generate cars / set destination to idle cars
+    GenerateNewRoutes();
+    % update velocity of the cars currently on road
+    UpdateVelocity();
+    % move cars & delete arrived cars
+    MoveCar();
+    % update road.queue to get new cars on road
+    UpdateRoadQueue();
+
+    % store data and misc.
+    ...
+end
+```
+- GenerateNewRoutes: at the beginning of every tick, generate new routes. If there are idle cars, use them first, otherwise create new cars.
+- UpdateRoadQueue: New cars will be automatically enqueued and wait. If the road is not full, let go one car from the queue. Notice a car passing by a node will **not** enter the queue. It will not even slow down due to the "straight-traffic-goes-first" principle.
+- UpdateVelocity: update the velocity of cars on roads.
+- MoveCar: move cars & delete arrived cars. By "deleting an arrived car", I mean put it back in a pool and fetch it later when we generate a new car.
 
 ***
 
@@ -79,571 +99,756 @@ Around three-quarter of the traffic is moving between those three central nodes.
 You can see from the map that there is no direct road connecting the central nodes, so the cars will dynamiclly find the fastest path and such paths are changing when time flows.
 
 #### 5.2 Traffic without elevated highways
+A screenshot of one moment in the movie.
+![ff](4.PNG)
+I recorded the time used by each car to reach its destination, including the time used to wait. The histogram is shown below:
+![ff](5.PNG)
+Some cars managed to arrive at the destination in less than 10 seconds (the average distance between two nodes is only 200 meters). In the worst case, it would take two minutes for a car to get to the location.
 
+#### 5.3 Traffic with elevated highways
+A screenshot of one moment in the movie. Notice a circular elevated highway is built around the city.
+![ff](6.PNG)
+I also recorded the time spent for each car as below:
+![ff](7.PNG)
+It is much better!
+#### 5.4 Comparison
+The result is much better than I expected. Three-quarter of the traffic is going from one of the central node to another central node. I designed this map such that if you want to use the elevated line, it will be **a huge detour**. Yet, it almost halved the maximum waiting time. More importantly, without EL $848$ cars arrived their destination and with EL, in the same amount of time, $964$ cars arrived. The throughput increases by $14\%$.
+![ff](8.PNG)
+This is just one interesting application of this system. It accepts any input graph, so there's really a lot can be done.
 
 ***
 
 ### 6. Reference
-- (1) Matthew Harker, Paul O'Leary, (2020). Surface Reconstruction from Gradient Fields: grad2Surf Version 1.0 (https://www.mathworks.com/matlabcentral/fileexchange/43149-surface-reconstruction-from-gradient-fields-grad2surf-version-1-0), MATLAB Central File Exchange. Retrieved March 13, 2020.
-- (2) Víctor Martínez-Cagigal (2020). Whitish Jet Colormap (https://www.mathworks.com/matlabcentral/fileexchange/67415-whitish-jet-colormap), MATLAB Central File Exchange. Retrieved March 14, 2020.
+None.  
+I started this project from scratch. I coded every single line on my own. It took me a lot of time.
 
 ***
 
 ### Appendix A How to run the code
-You can run the code in real time, with any setup. No need to wait for a long time to create a movie. This is achieved by splitting the project into two parts:
-- part A: SpringSimulation.m that does all simulation and stores the data into a mat file. It can be configured to disable all visual output for speed consideration.
-- part B: GravityField.m that reads the mat file and calculate 2D and 3D visualization. It supports 'fast forward'.
+You can run the code in real time, with any setup. Do not worry about heavy calculation. This is achieved by splitting the project into two parts:
+- part A: **TrafficSimulation.m** that does all simulation and stores the data into a mat file. 
+- part B: **TrafficVisualization.m** that reads the mat file and generate the movie. It supports "fast forward".
 
-To be more specific, to run 'stable' setup:
-```{MATLAB}
->> RunSpringStable  % a script of variables for 'stable'
->> filename = 'stable'; SaveData
->> GravityField('stable')  % start the movie
+To be more specific, to run the city example above:
+```MATLAB
+>> runTrafficSimulationCityEL  % a script with the graph info and calls 'TrafficSimulation.m'
+>> load('2020-xx-xx-xx-xx.mat')  % Load the data (replace with correct filename)
+>> TrafficVisualization(trafficRecord)  % start the movie
+```
+Alternatively, if you want to skip the simulation, you can also use my pre-calculated result
+```MATLAB
+>> load('CityWithEL.mat')
+>> TrafficVisualization(trafficRecord, 1)
 ```
 
-Replacing three appearances of 'stable' by 'harmonic', 'tribody' or 'square' will run the corresponding script.  
-You can also create your own 'RunSpringXXX' script with arbitary setup to play around with the system. 
+- There are a few other scripts with different setups. Feel free to play with them.  
+- You can also create your own 'RunTrafficSimulationXXX' script with arbitary graph to play around with the system. 
 
 ***
 
-### Appendix B SpringSimulation.m
+### Appendix B RunTrafficSimulationCityEL.m
 ```Matlab
-%% spring system simulation
-% The main script to run simulation
-% Use 'GravityField' to visualize the gravity field after running this
-% simulation
+% runTrafficSimulationCityEL
 
-%{
-% visualization parameters
-c = [0, 0, 1;
-     0.4, 0.8, 0.5;
-     0.8, 0, 0.5;
-     0.9, 0.4, 0];
-dequeSize = 150;
-XHist = ones(N, dequeSize) .* L(1, :)';
-YHist = ones(N, dequeSize) .* L(2, :)';
-dequePtr = 1; % deque to show trace
-%{
+o.roadArray = struct(...
+    ...% road idx  1   2   3   4   5   6   7   8   9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26
+    'nodeStart',  {1,  1,  1,  1,  2,  2,  3,  3,  3,  4,   4,   5,   5,   6,   6,   6,   6,   7,   7,   8,   8,   9,   10,  11,  11,  12,...
+                   2,  3,  4,  5,  6,  7,  4,  8,  9,  5,   10,  11,  18,  11,  12,  13,  14,  8,   14,  9,   15,  16,  17,  12,  18,  13,...
+                   20, 15, 16, 17, 18, 19, 13, 14,...
+                   15, 16, 17, 18, 19, 13, 14, 20},...
+    'nodeEnd',    {2,  3,  4,  5,  6,  7,  4,  8,  9,  5,   10,  11,  18,  11,  12,  13,  14,  8,   14,  9,   15,  16,  17,  12,  18,  13,...
+                   1,  1,  1,  1,  2,  2,  3,  3,  3,  4,   4,   5,   5,   6,   6,   6,   6,   7,   7,   8,   8,   9,   10,  11,  11,  12,...
+                   15, 16, 17, 18, 19, 13, 14, 20,...
+                   20, 15, 16, 17, 18, 19, 13, 14},...
+    'length',     {120,133,167,167,137,243,137,211,167,200, 170, 203, 224, 316, 213, 236, 233, 240, 203, 307, 236, 180, 120, 180, 194, 120,...
+                   120,133,167,167,137,243,137,211,167,200, 170, 203, 224, 316, 213, 236, 233, 240, 203, 307, 236, 180, 120, 180, 194, 120,...
+                   120,317,97, 184,164,154,177,195,...
+                   120,317,97, 184,164,154,177,195},...
+    'imageRoad',  {27, 28, 29, 30, 31, 32, 33, 34, 35, 36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,  52,...
+                   1   2   3   4   5   6   7   8   9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26,...
+                   61, 62, 63, 64, 65, 66, 67, 68,...
+                   53, 54, 55, 56, 57, 58, 59, 60}...
+);
 
-%}
-axisXMin = -1.5 * max(L, [], 'all');
-axisXMax =  1.5 * max(L, [], 'all');
-axisYMin = -1.5 * max(L, [], 'all');
-axisYMax =  1.5 * max(L, [], 'all');
-fieldResolution = 50;
-axisXSpace = (axisXMax - axisXMin) / (fieldResolution-1);
-axisYSpace = (axisYMax - axisYMin) / (fieldResolution-1);
-[surfX, surfY] = meshgrid(axisXMin:axisXSpace:axisXMax, axisYMax:-axisYSpace:axisYMin);
-% graphics output
-set(gcf, 'double', 'on')
-subplot(1, 2, 1)
-hold on
-h = scatter(L(1, :), L(2, :), 25.*ones(1, N), c(1:N, :), 'filled');
-for i = 1:N
-    htrail(i) = plot(XHist(i, :), YHist(i, :), 'Color', c(i, :));
-end
-hold off
-subplot(1, 2, 2)
-hold on
-hfield = surf(surfX, surfY, zeros(length(surfX), length(surfY)), 'FaceColor', 'flat', 'EdgeAlpha', 0.1);
-for i = 1:N
-    hfieldmass(i) = scatter3(L(1, i), L(2, i), 0, 40, c(i, :), 'filled', 'MarkerEdgeColor', 'b');
-end
-hold off
-view(3)
-%}
-%
-%% Check validity of input
-A = logical(A);
-assert(nnz(V(:, A)) == 0);  % anchor points must have velocity zero
-assert(size(Spring, 2) == 4);
-assert(nnz(M<=0) == 0);
-for i = 1:size(Spring, 1)
-    assert(~( A(Spring(i, 1)) && A(Spring(i, 2)) ));  % should not have string connecting two anchor points
-end
+o.nodeArray = struct(...
+    ...% node idx  1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18    :  19    20
+    'spawnRate',  {1.6, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,1.2, 0.1, 0.1, 0.1,1.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,      0,    0},...
+    'destChance', {8,   1,   1,   1,   1,   1,   1,   8,   1,   1,   1,   8,   2,   2,   3,   3,   2,   2,      0,    0}...
+);
 
-%% visualization
-% spring color
-cSpringConst = 55;
-cSpring = whitejet(cSpringConst);
-if visRealtime
-    
-    % marker color
-    cMarker = colorcube;
-    s = RandStream('mt19937ar','Seed',0);
-    RandStream.setGlobalStream(s);
-    idx = randperm(size(cMarker, 1));
-    cMarker = cMarker(idx, :);
-    cMarker = [lines(7); cMarker];
-    % size
-    mSize = calcSize(M);
-    % trail deque
-    Xtrail = ones(N, dequeSize) .* L(1, :)';
-    Ytrail = ones(N, dequeSize) .* L(2, :)';
-    dequePtr = 1; % deque to show trace
-    % figrue
-    figure('Position', [1739 50 1600 900])
-    hold on
-    set(gcf, 'double', 'on');
-    % plot anchor and normal points
-    for i = 1:N
-        if A(i)
-            h(i) = scatter(L(1, i), L(2, i), mSize(i)+10, 's', 'MarkerFaceColor', cMarker(i, :),...
-                        'MarkerEdgeColor', 'black', 'LineWidth', 2);
-        else
-            h(i) = scatter(L(1, i), L(2, i), mSize(i), 'o', 'MarkerFaceColor', cMarker(i, :), 'MarkerEdgeColor', 'none');
-            htrail(i) = plot(Xtrail(i, :), Ytrail(i, :), 'Color', cMarker(i, :));
-        end
-    end
-    % plot springs
-    for i = 1:size(Spring, 1)
-        hspr(i) = plot(L(1, [Spring(i, 1), Spring(i, 2)]), L(2, [Spring(i, 1), Spring(i, 2)]),...
-                      '-.', 'Marker', 'none', 'LineWidth', 1.5);
-    end
-    axis equal
-    hold off
-    % color bar
-    %{
-    colormap(cSpring);
-    caxis([-9 9]);
-    cbar = colorbar;
-    cbar.Label.String = 'String force from compression to extension';
-    %}
-    % axis lim
-    halfLength = max([max(L(1, :))-min(L(1, :)), max(L(2, :))-min(L(2, :))]);
-    if halfLength<5, halfLength=5;end
-    axisXMin = -halfLength*1.5;
-    axisXMax = halfLength*1.5;
-    axisYMin = -halfLength*1.5;
-    axisYMax = halfLength*1.5;
-end
+% visArray can be omitted when simulating, but it is necessary for
+% visualization
+o.visArray = struct(...
+    ...% node idx  1    2    3     4    5     6      7      8     9     10    11    12    13    14     15    16     17     18    :  19    20
+    'x',          {0.0, -0.2,0,    0.27,0.27, -0.27, -0.67, -0.4, 0.2,  0.6,  0.33, 0,    -0.2, -0.73, -0.73, 0.53, 0.73,  0.67,    0.4,  -0.97},...
+    'y',          {0.0, 0.13,-0.27,-0.2,0.2,  0.4,   0,     -0.4, -0.53,-0.13,0.6,  0.73, 0.87, 0.4,   -0.73, -0.67,-0.33, 0.4,     0.97, -0.33}...
+);
+o.megaNode = [1, 8, 12];
 
-if storeData
-    
-    XHist = zeros(N, clockmax);
-    YHist = zeros(N, clockmax);
-    colorSprIdx = zeros(size(Spring, 1), clockmax);
-end
+% car speed
+o.vmax = 22.2;  % meters/second
+o.dmin = 5;  % meters
+o.dmax = 100;  % meters
+% Simulation speed
+o.simulationTime = 200;  % in seconds
+o.dt = 0.1;  % in seconds
+o.fastForward = 3;
 
-%% simulation starts here
-count = 1;
-for clock = 1:clockmax
+% Run Simulation
+TrafficSimulation(o);
 
-    t = clock * dt;
-    F = calcF(L, Spring);
-    % now updating the velocity of i-th object
-    for i = 1:N
-
-        if A(i), continue;end  % skip anchor
-        a = zeros(2, 1);
-        for j = 1:N
-            if i==j, continue;end  % divide by 0
-            a = a + F(i, j) .* (L(:, j)-L(:, i)) ./ norm(L(:, i)-L(:, j));
-        end
-        a = a ./ M(i);
-
-        % update velocity
-        V(:, i) = V(:, i) + a .* dt;
-    end
-    % updating the location of i-th object
-    L = L + V .* dt;
-
-    % update realtime figrue
-    if visRealtime
-        for i = 1:N
-            if A(i), continue;end
-            set(h(i), 'xdata', L(1, i), 'ydata', L(2, i));
-        end
-
-        Xtrail(:, dequePtr) = L(1, :)';
-        Ytrail(:, dequePtr) = L(2, :)';
-        dequePtr = dequePtr + 1;
-        if (dequePtr > dequeSize), dequePtr = 1;end
-        for i = 1:N
-            if A(i), continue;end
-            set(htrail(i), 'xdata', [Xtrail(i, dequePtr:dequeSize), Xtrail(i, 1:dequePtr-1)],...
-                           'ydata', [Ytrail(i, dequePtr:dequeSize), Ytrail(i, 1:dequePtr-1)]);
-        end
-    end
-    % update spring, update spring color
-    for i = 1:size(Spring, 1)
-        dev = ceil(abs(3*F(Spring(i, 1), Spring(i, 2))));
-        if dev>27, dev=27;end
-        if F(Spring(i, 1), Spring(i, 2))>0
-            color = cSpring(28+dev, :);
-            if storeData, colorSprIdx(i, clock)=28+dev;end
-        else
-            color = cSpring(28-dev, :);
-            if storeData, colorSprIdx(i, clock)=28-dev;end
-        end
-        if visRealtime
-            set(hspr(i), 'xdata', L(1, [Spring(i, 1), Spring(i, 2)]),...
-                         'ydata', L(2, [Spring(i, 1), Spring(i, 2)]),...
-                         'Color', color);
-        end
-    end
-    if visRealtime
-        % drawnow
-        drawnow
-        xlim([axisXMin, axisXMax]);
-        ylim([axisYMin, axisYMax]);
-        pause(pauseTime);
-    end
-    % store data
-    if storeData
-        XHist(:, clock) = L(1, :)';
-        YHist(:, clock) = L(2, :)';
-    end
-    % replot subimage-2
-    %{
-    gradient_ = zeros(fieldResolution, fieldResolution, 2);
-    XArr = axisXMin:axisXSpace:axisXMax;
-    YArr = axisYMax:-axisYSpace:axisYMin;
-    for i = 1:length(XArr)
-        for j = 1:length(YArr)
-            for k = 1:N % for point (i, j) calc k-th planet's force
-
-                p = [XArr(j); YArr(i)]; % position of probe
-                r = norm(L(:, k) - p);
-                gradient_(i, j, 1) = gradient_(i, j, 1) + 1 * (r - R0_) * (L(1, k) - p(1)) / r;
-                gradient_(i, j, 2) = gradient_(i, j, 2) + 1 * (r - R0_) * (L(2, k) - p(2)) / r;
-            end
-        end
-    end
-    Z = -g2s(gradient_(:,:,1), gradient_(:,:,2), XArr', YArr');
-    ZMax = quantile(Z(:), 0.95);
-    Z(Z>ZMax) = ZMax;
-    ZMin = quantile(Z(:), 0.05);
-    Z(Z<ZMin) = ZMin;
-    set(hfield, 'zdata', Z); % update field
-    massZ = calcZ(Z, L, XArr, YArr);
-    for i = 1:N
-        set(hfieldmass(i), 'xdata', L(1, i), 'ydata', L(2, i), 'zdata', massZ(i));
-    end
-    %}
-    if ~visRealtime
-        if count > 500
-            fprintf('%.2f\n', clock/clockmax);
-            count = 0;
-        end
-        count = count + 1;
-    end
-end
-
-%%
-function [F] = calcF(L, Spring)
-
-    N = size(L, 2);
-    F = zeros(N, N);
-    for i = 1:size(Spring, 1)
-        f = Spring(i, 4) * (norm(L(:, Spring(i, 1))-L(:, Spring(i, 2))) - Spring(i, 3));
-        F(Spring(i, 1), Spring(i, 2)) = f;
-        F(Spring(i, 2), Spring(i, 1)) = f;
-    end
-end
-
-
-function [mSize] = calcSize(M)
-
-    low = 32;
-    high = 90;
-    minM = min(M);
-    mSize = low .* (M ./ minM);
-    mSize(mSize > high) = high;
-end
-
-
-function [massZ] = calcZ(Z, L, XArr, YArr)
-    
-    massZ = zeros(1, size(L, 2));
-    for i = 1:size(L, 2)
-        xx = 1;
-        yy = 1;
-        for j = 1:length(XArr)
-            if XArr(j)>L(1, i)
-               xx = j;
-               break;
-            end
-        end
-        for j = 1:length(YArr)
-            if YArr(j)<L(2, i)
-               yy = j;
-               break;
-            end
-        end
-        massZ(i) = Z(yy, xx) + 0.2;
-    end
-end
 ```
 
 ***
 
-### Appendix C GravityField
+### Appendix C TrafficSimulation.m
 ```Matlab
-function [] = GravityField(filename, focusIdx, fastForward)
-% Visualize the gravity field based on the stored data
-% 'filename' should be a 'mat' file created by 'SaveData.m'
+% Main simulation file
+% Ziyi. April 2020.
+function [] = TrafficSimulation(o)
 
-    if nargin<2
-        if strcmp(filename, 'harmonic'), focusIdx=2;fastForward=4;end
-        if strcmp(filename, 'tribody'), focusIdx=1;fastForward=4;end
-        if strcmp(filename, 'square'), focusIdx=1;fastForward=4;end
-        if strcmp(filename, 'stable'), focusIdx=1;fastForward=30;end
+%% Phase input variables
+checkInput();
+vmax = o.vmax;
+dmin = o.dmin;
+dmax = o.dmax;
+simulationTime = o.simulationTime;
+dt = o.dt;
+clockMax = ceil(simulationTime / dt);
+fastForward = o.fastForward;
+roadArray = o.roadArray;
+for i = 1:length(roadArray)
+    roadArray(i).cost = roadArray(i).length;
+end
+nodeArray = o.nodeArray;
+for i = 1:length(nodeArray)  % Add a new field to 'nodeArray'
+    nodeArray(i).straightPriority = [];
+end
+
+%% Initialization
+% carArray
+carArray.velocity = 0;
+carArray.roadNum = 0;
+carArray.position = 0;
+carArray.frontCar = 0;
+carArray.backCar = 0;
+carArray.alive = 0;
+carArray.birthTick = 0;
+carArray.roadArray = [];
+carArray = repmat(carArray, 1, 10);  % initialize a car pool with ten inactivated cars
+% roadArray
+for i = 1:length(roadArray)
+    roadArray(i).frontCar = 0;
+    roadArray(i).backCar = 0;
+    roadArray(i).queue = [];
+end
+path = FloydShortestPath(roadArray, length(nodeArray));
+% data recording
+trafficRecord = InitTrafficRecord();
+carRecord = cell(1, ceil(clockMax/fastForward));
+% random number generator
+rng(1);
+
+%% Simulation
+count = 0;
+storeCount = 1;
+time = 0;
+for clock = 1:clockMax
+    % generate cars / set destination to idle cars
+    GenerateNewRoutes();
+    % update velocity of cars currently on road
+    UpdateVelocity();
+    % move cars & delete arrived cars
+    MoveCar();
+    % update road.queue to get new cars on road
+    UpdateRoadQueue();
+
+    time = time + dt;
+    if (time > 1)  % re-calculate Floyd every five seconds
+        time = 0;
+        UpdateCost();
     end
-    %% read in data
-    fprintf('Loading file <%s> with focus point index %d.\n', filename, focusIdx);
-    data = load(filename);
-    data = data.data;
-    M = data.M;
-    L = data.L;
-    V = data.V;
-    A = data.A;
-    N = length(M);
-    Spring = data.Spring;
-    colorSprIdx = data.colorSprIdx;
-    tmax = data.tmax;
-    clockmax = data.clockmax;
-    dt = tmax / clockmax;
-    if ~isfield(data, 'XHist') || ~isfield(data, 'YHist')
-        warning('Please run simulation before running this script.');
-        return;
+
+    % data recording
+    if (mod(clock, fastForward) == 0)
+        carRecord{storeCount} = carArray;
+        storeCount = storeCount + 1;
     end
-    XHist = data.XHist;
-    YHist = data.YHist;
-    % fastForward
-    idx = 1:fastForward:clockmax;
-    clockmax = length(idx);
-    XHist = XHist(:, idx);
-    YHist = YHist(:, idx);
-    colorSprIdx = colorSprIdx(:, idx);
+    % progress bar
+    if count > 400
+        fprintf('Simulation Progress %.2f\n', clock/clockMax);
+        count = 0;
+    end
+    count = count + 1;
+end
+  
+disp("Saving data...");
+trafficRecord.carRecord = carRecord;
+filename = string(datestr(now,'yyyy-mm-dd-HH-MM')) + ".mat";
+save(filename, 'trafficRecord');
+disp("Result saved to file "+filename);
+clear TrafficSimulation
+
+%==========================================================================
+
+%% nested function: do some basic check of whether input variables are valid
+function [] = checkInput()
     
-    %% visRealtime
-    % marker color
-    cMarker = colorcube;
-    s = RandStream('mt19937ar','Seed',0);
-    RandStream.setGlobalStream(s);
-    idx = randperm(size(cMarker, 1));
-    cMarker = cMarker(idx, :);
-    cMarker = [lines(7); cMarker];
-    % spring color
-    cSpringConst = 55;
-    cSpring = whitejet(cSpringConst);
-    % size
-    mSize = calcSize(M);
-    % trail deque
-    dequeSize = 600;
-    if strcmp(filename, 'harmonic')
-        dequeSize = 1;
-    elseif strcmp(filename, 'tribody')
-        dequeSize = 200;
-    elseif strcmp(filename, 'stable')
-        dequeSize = 200;
+    % check imageRoad
+    for ii = 1:length(o.roadArray)
+        if (o.roadArray(ii).imageRoad > 0)
+            j = o.roadArray(ii).imageRoad;
+            if (o.roadArray(ii).nodeStart ~= o.roadArray(j).nodeEnd ||...
+                o.roadArray(ii).nodeEnd ~= o.roadArray(j).nodeStart ||...
+                o.roadArray(ii).length ~= o.roadArray(j).length)
+                error("roadArray input invalid: 'imageRoad'.");
+            end
+        end
     end
-    Xtrail = ones(N, dequeSize) .* L(1, :)';
-    Ytrail = ones(N, dequeSize) .* L(2, :)';
-    % figrue
-    figure('Position', [1739 50 1600 900])
-    set(gcf, 'double', 'on');
-    leftPanel = subplot(1, 2, 1);
-    hold on
-    % plot anchor and normal points
-    for i = 1:N
-        if A(i)
-            h(i) = scatter(leftPanel, L(1, i), L(2, i), mSize(i)+10, 's', 'MarkerFaceColor', cMarker(i, :),...
-                        'MarkerEdgeColor', 'black', 'LineWidth', 2);
+    % check nodeArray
+    for ii = 1:length(o.nodeArray)
+        if (o.nodeArray(ii).spawnRate < 0 || o.nodeArray(ii).spawnRate > 20)
+            error("nodeArray input invalid: 'spawnRate'.");
+        end
+        if (o.nodeArray(ii).destChance < 0)
+            error("nodeArray input invalid: 'destChance'.");
+        end
+    end
+    % check roadArray
+    for ii = 1:length(o.roadArray)
+        if (o.roadArray(ii).length < o.dmin * 2)
+            error("roadArray input invalid: 'length' too short compared with 'dmin'.");
+        end
+    end
+end
+
+
+%% nested function: initialize traffic record object
+function [trafficRecord_] = InitTrafficRecord()
+    trafficRecord_.vmax = vmax;
+    trafficRecord_.dmin = dmin;
+    trafficRecord_.dmax = dmax;
+    trafficRecord_.simulationTime = simulationTime;
+    trafficRecord_.dt = dt;
+    trafficRecord_.clockMax = clockMax;
+    trafficRecord_.roadArray = roadArray;
+    trafficRecord_.nodeArray = nodeArray;
+    trafficRecord_.timeToArrive = [];
+    if (isfield(o, 'visArray') && length(o.visArray)==length(nodeArray))
+        trafficRecord_.visArray = o.visArray;
+    end
+    if (isfield(o, 'megaNode'))
+        trafficRecord_.megaNode = o.megaNode;
+    end
+end
+
+
+%% nested function: at the beginning of every tick, generate new routes. If
+% there are idle cars, use them first, otherwise create new cars.
+function [] = GenerateNewRoutes()
+    
+    % Generate routes for every node
+    for ii = 1:length(nodeArray)
+        targetNumCars = nodeArray(ii).spawnRate * dt; % note: this number can be smaller than 1
+        % first generate integer part of 'targetNumCars'
+        while (targetNumCars >= 1)
+            targetNumCars = targetNumCars - 1;
+            GenerateOneNewRoute(ii);
+        end
+        % then generate decimal part of 'targetNumCars'
+        randNum = rand(1);
+        if (randNum < targetNumCars)
+            GenerateOneNewRoute(ii);
+        end
+    end
+    
+    
+    %% double nested function: Generate one route from 'origin'
+    function [] = GenerateOneNewRoute(origin)
+        
+        persistent destChanceSum
+    
+        % Calculate 'destChanceSum' if this is the first call of this
+        % function
+        if isempty(destChanceSum)
+            destChanceSum = 0;
+            for iii = 1:length(nodeArray)
+                destChanceSum = destChanceSum + nodeArray(iii).destChance;
+            end
+        end
+    
+        localDestChanceSum = destChanceSum - nodeArray(origin).destChance;
+        sum = 0;
+        randNumDest = rand(1);
+        for iii = 1:length(nodeArray)
+            if (iii == origin), continue;end
+            if (path(origin, iii) == 0), continue;end  % no route
+            sum = sum + nodeArray(iii).destChance;
+            if (sum / localDestChanceSum > randNumDest)
+                % the iii-th node is chosen to be destination
+                carIndex = GetIdleCar();
+                carPath = GenerateRoadArray(origin, iii);
+                carArray(carIndex).roadNum = carPath(1);
+                carArray(carIndex).alive = 2;
+                carArray(carIndex).birthTick = clock;
+                carArray(carIndex).roadArray = carPath;
+                % append to the waiting queue of this road
+                roadIdx = carPath(1);
+                roadArray(roadIdx).queue(end+1) = carIndex;
+                % do not generate another route
+                break;
+            end
+        end
+    end
+
+
+    %% double nested function: Get the index of an idle car. Generate a new
+    %  car if there is none.
+    function [res] = GetIdleCar()
+        for iii = 1:length(carArray)
+            if (carArray(iii).alive == 0)
+                res = iii;
+                return;
+            end
+        end
+        % no idle car left, generate some new cars
+        num = length(carArray);
+        carArray(num+1:num*2) = carArray(1:num);  % double the size every time
+        for iii = num+1:num*2
+            carArray(iii).velocity = 0;
+            carArray(iii).roadNum = 0;
+            carArray(iii).position = 0;
+            carArray(iii).frontCar = 0;
+            carArray(iii).backCar = 0;
+            carArray(iii).alive = 0;
+            carArray(iii).birthTick = 0;
+            carArray(iii).roadArray = [];
+        end
+
+        res = num + 1;
+    end
+    
+    
+    %% Generate an array of path (represented by road number) from 'origin' 
+    %  node and 'dest' node
+    function [res] = GenerateRoadArray(origin, dest)
+        if (path(origin, dest) == -1)
+            res = GetRoadIndex(origin, dest);
+            return;
         else
-            h(i) = scatter(leftPanel, L(1, i), L(2, i), mSize(i), 'o', 'MarkerFaceColor', cMarker(i, :), 'MarkerEdgeColor', 'none');
-            htrail(i) = plot(leftPanel, Xtrail(i, :), Ytrail(i, :), 'Color', cMarker(i, :));
+            res = GenerateRoadArray(origin, path(origin, dest));
+            res = [res, GenerateRoadArray(path(origin, dest), dest)];
         end
     end
-    % plot springs
-    for i = 1:size(Spring, 1)
-        hspr(i) = plot(leftPanel, L(1, [Spring(i, 1), Spring(i, 2)]), L(2, [Spring(i, 1), Spring(i, 2)]),...
-                      '-.', 'Marker', 'none', 'LineWidth', 1.5);
-    end
-    axis equal
-    hold off
-    % color bar
-    cmap = colormap(leftPanel, cSpring);
-    caxis(leftPanel, [-9 9]);
-    caxis(leftPanel, 'manual');
-    cbar = colorbar();
-    cbar.Label.String = 'String force from compression to extension';
-    cbar.Label.FontSize = 15;
-    % axis lim
-    halfLength = max([max(XHist, [], 'all')-min(XHist, [], 'all'), max(YHist, [], 'all')-min(YHist, [], 'all')]);
-    if halfLength<5, halfLength=5;end
-    axisXMin = -halfLength*1.1;
-    axisXMax = halfLength*1.1;
-    axisYMin = -halfLength*1.1;
-    axisYMax = halfLength*1.1;
-    if strcmp(filename, 'harmonic')
-        axisXMin=-2;axisXMax=20;axisYMin=-7;axisYMax=7;
-    elseif strcmp(filename, 'tribody')
-        axisXMin=-10;axisXMax=17;axisYMin=-8;axisYMax=8;
-    elseif strcmp(filename, 'square')
-        axisXMin=-20;axisXMax=20;axisYMin=-20;axisYMax=20;
-    elseif strcmp(filename, 'stable')
-        axisXMin=-22;axisXMax=22;axisYMin=-22;axisYMax=22;
-    end
-    xlim(leftPanel, [axisXMin, axisXMax]);
-    ylim(leftPanel, [axisYMin, axisYMax]);
+end
 
-    %% Gravity Field
-    % springFocus to accelerate
-    SpringFocus = [];
-    SpringFocusConnected = false(N, 1);
-    SpringFocusConnected(focusIdx) = true;
-    for i = 1:size(Spring, 1)
-        if Spring(i, 1)==focusIdx
-            SpringFocus = [SpringFocus; Spring(i, 2:4)];  %#ok
-            SpringFocusConnected(Spring(i, 2)) = true;
-        end
-        if Spring(i, 2)==focusIdx
-            SpringFocus = [SpringFocus; Spring(i, 1), Spring(i, 3:4)];  %#ok
-            SpringFocusConnected(Spring(i, 1)) = true;
+
+%% nested function: get road index from 'nodeStart' and 'nodeEnd'
+function [res] = GetRoadIndex(nodeStart, nodeEnd)
+    
+    for ii = 1:length(roadArray)
+        if (roadArray(ii).nodeStart == nodeStart && roadArray(ii).nodeEnd == nodeEnd)
+            res = ii;
+            return;
         end
     end
-    % plot hfieldmass
-    fieldResolution = 50;
-    axisXSpace = (axisXMax - axisXMin) / (fieldResolution-1);
-    axisYSpace = (axisYMax - axisYMin) / (fieldResolution-1);
-    [surfX, surfY] = meshgrid(axisXMin:axisXSpace:axisXMax, axisYMax:-axisYSpace:axisYMin);
-    rightPanel = subplot(1, 2, 2);
-    hold on
-    hfield = surf(rightPanel, surfX, surfY, zeros(length(surfX), length(surfY)), 'FaceColor', 'flat', 'EdgeAlpha', 0.1);
-    for i = 1:N
-        if ~SpringFocusConnected(i), continue;end  % only plot connected masses
-        hfieldmass(i) = scatter3(rightPanel, L(1, i), L(2, i), 0, 40, cMarker(i, :), 'filled', 'MarkerEdgeColor', 'b');
+    res = -1;
+end
+
+
+%% nested function: if the road is not full, let go one car from queue
+function [] = UpdateRoadQueue()
+
+    for ii = 1:length(roadArray)
+        if isempty(roadArray(ii).queue)
+            continue;
+        end
+        queueCarIdx = roadArray(ii).queue(1);
+        backCarIdx = roadArray(ii).backCar;
+        if (backCarIdx > 0 &&...
+            carArray(backCarIdx).position * roadArray(ii).length < dmin)
+            % this road is full now
+            continue;
+        elseif ~isempty(nodeArray(roadArray(ii).nodeStart).straightPriority)
+            % straight traffic goes first
+            continue;
+        else
+            % good to go!
+            carArray(queueCarIdx).frontCar = backCarIdx;
+            carArray(queueCarIdx).alive = 1;
+            if (backCarIdx > 0)
+                carArray(backCarIdx).backCar = queueCarIdx;
+            end
+            roadArray(ii).backCar = queueCarIdx;
+            if (roadArray(ii).frontCar == 0)
+                roadArray(ii).frontCar = queueCarIdx;
+            end
+            roadArray(ii).queue(1) = [];  % pop from queue
+        end
     end
-    % legend
-    fakeTarget = scatter3(rightPanel, 0, 0, -200, 2, cMarker(focusIdx, :), 'filled');
-    legend_ = legend(fakeTarget, 'Surface reconstructed using this mass');
-    legend_.FontSize = 15;
-    legend_.AutoUpdate = false;
-    % done
-    grid on
-    hold off
-    view(3)
-    force = zeros(fieldResolution, fieldResolution, 2);
-    XArr = axisXMin:axisXSpace:axisXMax;
-    YArr = axisYMax:-axisYSpace:axisYMin;
-    xlim(rightPanel, [axisXMin, axisXMax]);
-    ylim(rightPanel, [axisYMin, axisYMax]);
-    zlimMin = -100;
-    zlimMax = 100;
-    if strcmp(filename, 'harmonic')
-        zlimMin = -30;zlimMax = 40;
-    elseif strcmp(filename, 'tribody')
-        zlimMin = -100;zlimMax = 150;
-    elseif strcmp(filename, 'square')
-        zlimMin = -150;zlimMax = 50;
-    elseif strcmp(filename, 'stable')
-        zlimMin = -3e5;zlimMax = 4.5e5;
+end
+
+
+%% nested function: update the velocity of cars on roads
+function [] = UpdateVelocity()
+
+    % update velocity
+    for ii = 1:length(roadArray)
+        carIdx = roadArray(ii).backCar;
+        while (carIdx > 0)
+            frontCarIdx = carArray(carIdx).frontCar;
+            if (frontCarIdx == 0)
+                % no car ahead (on current road)
+                if (length(carArray(carIdx).roadArray) == 1)  % if near destination
+                    carArray(carIdx).velocity = Velocity((dmax + dmin)/2);
+                else
+                    nextRoadIdx = carArray(carIdx).roadArray(2);
+                    nextCarIdx = roadArray(nextRoadIdx).backCar;
+                    if (nextCarIdx == 0)  
+                        % if no car ahead (even taking next road into consideration)
+                        carArray(carIdx).velocity = Velocity((dmax + dmin)/2);
+                    else
+                        % calculate the dist to the car on next road
+                        currentRoadIdx = carArray(carIdx).roadArray(1);
+                        dist_ = (1 - carArray(carIdx).position) * roadArray(currentRoadIdx).length;
+                        dist = dist_ + carArray(nextCarIdx).position * roadArray(nextRoadIdx).length;
+                        carArray(carIdx).velocity = Velocity(dist);
+                        % add my carIdx to straightPriority if not there
+                        if (dist_ < dmin)
+                            nodeIdx = roadArray(currentRoadIdx).nodeEnd;
+                            if isempty(find(nodeArray(nodeIdx).straightPriority == carIdx, 1))
+                                nodeArray(nodeIdx).straightPriority = [nodeArray(nodeIdx).straightPriority, carIdx];
+                            end
+                        end
+                    end
+                end
+            else
+                % car ahead
+                dist = roadArray(ii).length * (carArray(frontCarIdx).position - carArray(carIdx).position);
+                carArray(carIdx).velocity = Velocity(dist);
+            end
+            carIdx = frontCarIdx;
+        end
     end
-    zlim(rightPanel, [zlimMin, zlimMax]);
-    massZCorrection = 0.01 * (zlimMax - zlimMin);
+    
+    
+    %% double nested function: Calculate velocity from distance to front car
+    function [res] = Velocity(d)
 
-    % pauseTime/FPS control
-    pauseTime = 0.0;
-
-    %% Start Animation
-    for t = 1:clockmax
-        pause(pauseTime);
-        %% Left Panel
-        % update points
-        for i = 1:N
-            if A(i), continue;end
-            set(h(i), 'xdata', XHist(i, t), 'ydata', YHist(i, t));
+        if(d < dmin)
+            res=0;
+        elseif(d < dmax)
+            res = vmax * log(d/dmin) / log(dmax/dmin);
+        else
+            res = vmax;
         end
+    end
+end
 
-        for i = 1:N
-            if A(i), continue;end
-            idxStart = t-dequeSize;
-            if idxStart<1, idxStart=1;end
-            set(htrail(i), 'xdata', XHist(i, idxStart:t),...
-                           'ydata', YHist(i, idxStart:t));
-        end
-        % update spring, update spring color
-        for i = 1:size(Spring, 1)
-            set(hspr(i), 'xdata', XHist([Spring(i, 1), Spring(i, 2)], t),...
-                         'ydata', YHist([Spring(i, 1), Spring(i, 2)], t),...
-                         'Color', cSpring(colorSprIdx(i, t), :));
-        end
-        %% Right Panel
-        force = zeros(fieldResolution, fieldResolution, 2);
-        for i = 1:length(YArr)
-            for j = 1:length(XArr)
-                for k = 1:size(SpringFocus, 1)
 
-                    p = [XArr(j); YArr(i)];  % position of probe
-                    k_ = SpringFocus(k, 1);  % idx of connected point
-                    Lk_ = [XHist(k_, t); YHist(k_, t)];  % location of k_
-                    r = norm([XHist(k_, t); YHist(k_, t)] - p);
-                    forceElement = SpringFocus(k, 3) .* (r - SpringFocus(k, 2)) .* (Lk_ - p) ./ r;
-                    force(i, j, 1) = force(i, j, 1) + forceElement(1);
-                    force(i, j, 2) = force(i, j, 2) + forceElement(2);
+%% nested function: move cars & delete arrived cars
+function [] = MoveCar()
+    
+    for ii = 1:length(carArray)
+        if (carArray(ii).alive ~= 1), continue;end
+        deltaDist = carArray(ii).velocity * dt;
+        roadLength = roadArray(carArray(ii).roadNum).length;
+        carArray(ii).position = carArray(ii).position + deltaDist / roadLength;
+
+        if (carArray(ii).position > 1)  % end of current road
+
+            carArray(ii).roadArray(1) = [];
+            if isempty(carArray(ii).roadArray)  % destination arrived
+                currentRoadIdx = carArray(ii).roadNum;
+                backCarIdx = carArray(ii).backCar;
+                % update car
+                DeleteCar(ii);
+                % update back car
+                if (backCarIdx > 0)
+                    carArray(backCarIdx).frontCar = 0;
+                end
+                % update road
+                roadArray(currentRoadIdx).frontCar = backCarIdx;
+                if (roadArray(currentRoadIdx).backCar == ii)
+                    roadArray(currentRoadIdx).backCar = 0;
+                end
+            else  % move to next road
+                currentRoadIdx = carArray(ii).roadNum;
+                nextRoadIdx = carArray(ii).roadArray(1);
+                backCarIdx = carArray(ii).backCar;
+                frontCarIdx = roadArray(nextRoadIdx).backCar;
+                % update this car
+                carArray(ii).roadNum = nextRoadIdx;
+                carArray(ii).position = (carArray(ii).position - 1) * roadArray(currentRoadIdx).length / roadArray(nextRoadIdx).length;
+                carArray(ii).frontCar = frontCarIdx;
+                carArray(ii).backCar = 0;
+                % update back car
+                if (backCarIdx > 0)
+                    carArray(backCarIdx).frontCar = 0;
+                end
+                % update front car
+                if (frontCarIdx > 0)
+                    carArray(frontCarIdx).backCar = ii;
+                end
+                % update current road
+                roadArray(currentRoadIdx).frontCar = backCarIdx;
+                if (roadArray(currentRoadIdx).backCar == ii)
+                    roadArray(currentRoadIdx).backCar = 0;
+                end
+                % update next road
+                roadArray(nextRoadIdx).backCar = ii;
+                if (roadArray(nextRoadIdx).frontCar == 0)
+                    roadArray(nextRoadIdx).frontCar = ii;
+                end
+                % update node
+                nodeIdx = roadArray(currentRoadIdx).nodeEnd;
+                idx = find(nodeArray(nodeIdx).straightPriority == ii);
+                if ~isempty(idx)
+                    nodeArray(nodeIdx).straightPriority(idx) = [];
                 end
             end
         end
-        force = toSmooth(force);
-        Z = -g2s(force(:,:,1), force(:,:,2), XArr', YArr');
-
-        Z(Z>zlimMax) = zlimMax;
-        Z(Z<zlimMin) = zlimMin;
+    end
+    
+    
+    % double nested function: inactivate the car once it arrives at
+    % destination
+    function [] = DeleteCar(idx)
         
-        set(hfield, 'zdata', Z); % update field
-        massZ = interp2(surfX, surfY, Z, XHist(:, t), YHist(:, t));
-        for i = 1:N
-            if ~SpringFocusConnected(i), continue;end
-            set(hfieldmass(i), 'xdata', XHist(i, t), 'ydata', YHist(i, t), 'zdata', massZ(i)+massZCorrection);
-        end
-        
-        %% update figure
-        drawnow
+        seconds = dt * (clock-carArray(idx).birthTick);
+        trafficRecord.timeToArrive = [trafficRecord.timeToArrive, seconds];
+        carArray(idx).velocity = 0;
+        carArray(idx).roadNum = 0;
+        carArray(idx).position = 0;
+        carArray(idx).frontCar = 0;
+        carArray(idx).backCar = 0;
+        carArray(idx).alive = 0;
+        carArray(idx).birthTick = 0;
+        carArray(idx).roadArray = [];
     end
 end
 
 
-%%
-function [mSize] = calcSize(M)
+%% nested function: update the cost of each edge in graph based on rael-time traffic
+function [] = UpdateCost()
 
-    low = 32;
-    high = 90;
-    minM = min(M);
-    mSize = low .* (M ./ minM);
-    mSize(mSize > high) = high;
+    cars = carArray(([carArray.alive] == 1) | ([carArray.alive] == 2));
+    for ii = 1:length(roadArray)
+        numCars = nnz([cars.roadNum] == ii) + 1;
+        roadArray(ii).cost = roadArray(ii).length + numCars * dmin * 6;
+    end
+    % call floyd again
+    path = FloydShortestPath(roadArray, length(nodeArray));
+end
 end
 
+% END of TrafficSimulation.m
+```
 
-function [force] = toSmooth(force)
-    
-    forceAbs = abs(force);
-    forceMax = quantile(forceAbs(:), 0.98);
-    force(force>forceMax) = forceMax;
-    force(force<-forceMax) = -forceMax;
+***
+
+### Appendix D TrafficVisualization.m
+```MATLAB
+% Main visualization file
+% Ziyi. April 2020.
+function [] = TrafficVisualization(trafficRecord, fastForward)
+
+%% Phase input variables
+if (nargin<2), fastForward=1;end
+if (~isfield(trafficRecord, 'visArray'))
+    error("TrafficVisualization needs a visArray to plot the figure. It might be missing or invalid.");
+end
+vmax = trafficRecord.vmax;
+dmin = trafficRecord.dmin;
+dmax = trafficRecord.dmax;
+simulationTime = trafficRecord.simulationTime;
+dt = trafficRecord.dt;
+clockMax = trafficRecord.clockMax;
+roadArray = trafficRecord.roadArray;
+roadArray(1).xyStart = [];  % Add two new fields to 'roadArray'
+roadArray(1).vec = [];
+nodeArray = trafficRecord.nodeArray;
+nodeArray(1).xy = [];  % Add one new field to 'nodeArray'
+carRecord = trafficRecord.carRecord;
+visArray = trafficRecord.visArray;
+assert(length(visArray) == length(nodeArray));
+megaNode = [];
+if isfield(trafficRecord, 'megaNode')
+    megaNode = trafficRecord.megaNode;
 end
 
+%% Fast forward
+carRecord = carRecord(1:fastForward:end);
 
-function [massZ] = calcZ(Z, L, XArr, YArr)
-    
-    massZ = zeros(1, size(L, 2));
-    for i = 1:size(L, 2)
-        xx = 1;
-        yy = 1;
-        for j = 1:length(XArr)
-            if XArr(j)>L(1, i)
-               xx = j;
-               break;
-            end
-        end
-        for j = 1:length(YArr)
-            if YArr(j)<L(2, i)
-               yy = j;
-               break;
-            end
-        end
-        massZ(i) = Z(yy, xx) + 0.2;
+%% Draw background (road & node)
+% everything drawn in [-1, 1]*[-1, 1]
+figure
+set(gcf, 'Position',  [200, 200, 1000, 1000])
+axis manual
+axis([-1 1 -1 1]);
+pbaspect([1 1 1]);
+hold on
+title("Traffic Simulation Visualization");
+
+nodeRadius = 0.03;
+roadWidth = nodeRadius * 0.7;
+% roads
+for i = 1:length(roadArray)
+    if (roadArray(i).imageRoad == 0)
+       % one-way road
+       DrawOnewayRoad(i);
+    else
+       if (roadArray(i).imageRoad < i), continue;end
+       % two-way road
+       DrawTwowayRoad(i);
     end
 end
+% nodes
+pseudoNode = [19, 20];
+for i = 1:length(visArray)
+    r = nodeRadius;
+    col = '#DDDDDD';
+    if ~isempty(find(megaNode == i, 1))
+        r = nodeRadius * 1.6;
+        col = '#EDB120';
+    elseif ~isempty(find(pseudoNode == i, 1))
+        r = nodeRadius * 0.8;
+        col = 'white';
+    end
+    coord = [visArray(i).x-r, visArray(i).y-r, 2*r, 2*r];
+    rectangle('Position', coord, 'Curvature', [1, 1], 'FaceColor', col, 'EdgeColor', 'black');
+end
+
+
+%% Prepare handles of cars
+carSize = 14;
+hcar = zeros(1, length(roadArray));
+hqueue = zeros(1, length(nodeArray));
+for i = 1:length(roadArray)
+    hcar(i) = scatter(0, 0, carSize, 'black', 'filled', 'MarkerEdgeColor', 'black');
+end
+randPosSize = 2000;
+randPos = rand(randPosSize, 1);  % a pre-calculated random position array
+randPos = [cos(randPos.*2.*pi), sin(randPos.*2.*pi)];
+randPos = randPos .* (rand(randPosSize, 1)+0.2) ./ 1.4 .* nodeRadius;
+for i = 1:length(nodeArray)
+    hqueue(i) = scatter(0, 0, carSize, 'black', 'filled', 'MarkerEdgeColor', 'black');
+end
+
+%% Start Animation
+pauseTime = 0.00;  % pauseTime/FPS control
+if (fastForward>1), pauseTime=0;end  % do not pause if fast forward is set
+for clock = 1:length(carRecord)-2
+    
+    pause(pauseTime);
+    carArray = carRecord{clock};
+    roadCar = carArray([carArray.alive] == 1);
+    queueCar = carArray([carArray.alive] == 2);
+    % plot cars on road (alive == 1)
+    for i = 1:length(roadArray)
+        cars = roadCar([roadCar.roadNum] == i);
+        if isempty(cars)
+            set(hcar(i), 'xdata', [], 'ydata', []);
+            continue;
+        end
+        loc = repmat(roadArray(i).xyStart, length(cars), 1);
+        loc = loc + roadArray(i).vec .* [cars.position]';
+        velocity = [cars.velocity];
+        % plot
+        set(hcar(i), 'xdata', loc(:, 1), 'ydata', loc(:, 2), 'cdata', Velocity2Color(velocity));
+    end
+    % plot cars in queue (alive == 2)
+    roadNum = [queueCar.roadNum];
+    if isempty(roadNum)
+        nodeNum = [];
+    else
+        nodeNum = [roadArray(roadNum).nodeStart];
+    end
+    for i = 1:length(nodeArray)
+        num = nnz(nodeNum == i);
+        if (num==0)
+            set(hqueue(i), 'xdata', [], 'ydata', []);
+            continue;
+        end
+        if (num>50), num=50;end  % dont plot too many dots in the waiting area
+        startIdx = randi(randPosSize-1-num);
+        loc = randPos(startIdx:startIdx+num-1, :);
+        loc = loc + nodeArray(i).xy;
+        velocity = zeros(num, 1);
+        % plot
+        set(hqueue(i), 'xdata', loc(:, 1), 'ydata', loc(:, 2), 'cdata', Velocity2Color(velocity));
+    end
+    
+    % update figure
+    drawnow
+end
+disp("Traffic movie done.");
+
+
+%% nested function: draw one-way road
+function [] = DrawOnewayRoad(idx)
+
+    x0 = visArray(roadArray(idx).nodeStart).x;
+    y0 = visArray(roadArray(idx).nodeStart).y;
+    x1 = visArray(roadArray(idx).nodeEnd).x;
+    y1 = visArray(roadArray(idx).nodeEnd).y;
+    dist = norm([x0-x1, y0-y1]);
+    orthVec = [y0-y1, x1-x0]/dist;  % unit vector, anti-clockwise 90 degrees + from start to end
+    orthVec = orthVec .* roadWidth ./ 2;
+    copperColormap = copper(100);
+    colormap(copperColormap(1:85, :));
+    patch([x0+orthVec(1), x1+orthVec(1)], [y0+orthVec(2), y1+orthVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
+    patch([x0-orthVec(1), x1-orthVec(1)], [y0-orthVec(2), y1-orthVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
+    % set new fields
+    roadArray(idx).xyStart = [x0, y0];
+    roadArray(idx).vec = [x1-x0, y1-y0];
+    nodeArray(roadArray(idx).nodeStart).xy = [x0, y0];
+    nodeArray(roadArray(idx).nodeEnd).xy = [x1, y1];
+end
+
+
+%% nested function: draw two-way road
+function [] = DrawTwowayRoad(idx)
+
+    x0 = visArray(roadArray(idx).nodeStart).x;
+    y0 = visArray(roadArray(idx).nodeStart).y;
+    x1 = visArray(roadArray(idx).nodeEnd).x;
+    y1 = visArray(roadArray(idx).nodeEnd).y;
+    dist = norm([x0-x1, y0-y1]);
+    orthVec = [y0-y1, x1-x0]/dist;  % unit vector, anti-clockwise 90 degrees + from start to end
+    dispVec = orthVec .* roadWidth .* 0.2;
+    orthVec = orthVec .* roadWidth;
+    copperColormap = copper(100);
+    colormap(copperColormap(1:85, :));
+    patch([x0-dispVec(1), x1-dispVec(1)], [y0-dispVec(2), y1-dispVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
+    patch([x0-orthVec(1)-dispVec(1), x1-orthVec(1)-dispVec(1)], [y0-orthVec(2)-dispVec(2), y1-orthVec(2)-dispVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
+    patch([x1+dispVec(1), x0+dispVec(1)], [y1+dispVec(2), y0+dispVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
+    patch([x1+orthVec(1)+dispVec(1), x0+orthVec(1)+dispVec(1)], [y1+orthVec(2)+dispVec(2), y0+orthVec(2)+dispVec(2)], [0.1, 0.9], 'FaceColor','none','EdgeColor','interp');
+    % set new fields
+    roadArray(idx).xyStart = [x0, y0] - dispVec - 0.5 .* orthVec;
+    roadArray(idx).vec = [x1-x0, y1-y0];
+    imageIdx = roadArray(idx).imageRoad;
+    roadArray(imageIdx).xyStart = [x1, y1] + dispVec + 0.5 .* orthVec;
+    roadArray(imageIdx).vec = -[x1-x0, y1-y0];
+    nodeArray(roadArray(idx).nodeStart).xy = [x0, y0];
+    nodeArray(roadArray(idx).nodeEnd).xy = [x1, y1];
+end
+
+
+%% nested function: return a color based on speed
+function [res] = Velocity2Color(speed)
+
+    persistent carColor gap
+    
+    if isempty(carColor)
+        carColor = parula(102);
+        gap = vmax / 100;
+    end
+
+    res = carColor(floor(speed / gap)+1, :);
+end
+end
+
+% END of TrafficVisualization.m
+
 ```
