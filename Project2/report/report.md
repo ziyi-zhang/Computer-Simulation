@@ -86,7 +86,7 @@ Only one example of the tests is shown here. But there are many more, and you ca
 #### 4.1 Intelligent path finding
 In the following example, only the upper node is generating cars and the destination is always the lower node. It is generating so many cars that the traffic exceeds the capacity of one road. You will see some cars start to pass by the third node (the one on the left) when the shortest path is too crowded.  
 This is hard to illustrate using screenshots. But it is quite obvious in the movie.
-![ff](2.png)
+![ff1](2.png)
 
 ***
 
@@ -94,26 +94,26 @@ This is hard to illustrate using screenshots. But it is quite obvious in the mov
 Tata... Here comes the highlight of this project. I spent several hours designing a small city with this system! I want to see whether building a circular elevated highway around the city will solve the congestion problem in the city center.
 #### 5.1 The city
 There are three central nodes (orange) and fifteen small nodes in the city.  
-Around three-quarter of the traffic is moving between those three central nodes. But there will also be traffic coming from small nodes or even rural areas (bottom right nodes). Occasionally, people also want to go to rural areas. 
+Around three-quarters of the traffic is moving between those three central nodes. But there will also be traffic coming from small nodes or even rural areas (bottom right nodes). Occasionally, people also want to go to rural areas. 
 ![ff](3.PNG)
-You can see from the map that there is no direct road connecting the central nodes, so the cars will dynamiclly find the fastest path and such paths are changing when time flows.
+You can see from the map that there is no direct road connecting the central nodes, so the cars will dynamically find the fastest path and such paths are changing when time flows.
 
 #### 5.2 Traffic without elevated highways
 A screenshot of one moment in the movie.
 ![ff](4.PNG)
 I recorded the time used by each car to reach its destination, including the time used to wait. The histogram is shown below:
-![ff](5.PNG)
+![ff2](5.PNG)
 Some cars managed to arrive at the destination in less than 10 seconds (the average distance between two nodes is only 200 meters). In the worst case, it would take two minutes for a car to get to the location.
 
 #### 5.3 Traffic with elevated highways
 A screenshot of one moment in the movie. Notice a circular elevated highway is built around the city.
 ![ff](6.PNG)
 I also recorded the time spent for each car as below:
-![ff](7.PNG)
+![ff2](7.PNG)
 It is much better!
 #### 5.4 Comparison
-The result is much better than I expected. Three-quarter of the traffic is going from one of the central node to another central node. I designed this map such that if you want to use the elevated line, it will be **a huge detour**. Yet, it almost halved the maximum waiting time. More importantly, without EL $848$ cars arrived their destination and with EL, in the same amount of time, $964$ cars arrived. The throughput increases by $14\%$.
-![ff](8.PNG)
+The result is much better than I expected. Three-quarters of the traffic is going from one of the central nodes to another central node. I designed this map such that if you want to use the elevated line, it will be **a huge detour**. Yet, it almost halved the maximum waiting time. More importantly, without EL $848$ cars arrived their destination and with EL, in the same amount of time, $964$ cars arrived. The throughput increases by $14\%$.
+![ff2](8.PNG)
 This is just one interesting application of this system. It accepts any input graph, so there's really a lot can be done.
 
 ***
@@ -125,7 +125,7 @@ I started this project from scratch. I coded every single line on my own. It too
 ***
 
 ### Appendix A How to run the code
-You can run the code in real time, with any setup. Do not worry about heavy calculation. This is achieved by splitting the project into two parts:
+You can run the code in realtime, with any setup. Do not worry about heavy calculation. This is achieved by splitting the project into two parts:
 - part A: **TrafficSimulation.m** that does all simulation and stores the data into a mat file. 
 - part B: **TrafficVisualization.m** that reads the mat file and generate the movie. It supports "fast forward".
 
@@ -142,7 +142,7 @@ Alternatively, if you want to skip the simulation, you can also use my pre-calcu
 ```
 
 - There are a few other scripts with different setups. Feel free to play with them.  
-- You can also create your own 'RunTrafficSimulationXXX' script with arbitary graph to play around with the system. 
+- You can also create your own 'RunTrafficSimulationXXX' script with arbitrary graph to play around with the system. 
 
 ***
 

@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title><p style='text-align: right;'> 330 Computer Simulation - Project 2 Report<br/> Ziyi Zhang - zz2463<br/> April 27, 2020 </p></title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+    </head>
+    <body class="vscode-light">
+        <link href="style.css" rel="stylesheet"></link>
+<h4 id="p-styletext-align-right-330-computer-simulation---project-2-reportbr-ziyi-zhang---zz2463br-april-27-2020-p"><p style='text-align: right;'> 330 Computer Simulation - Project 2 Report<br/> Ziyi Zhang - zz2463<br/> April 27, 2020 </p></h4>
+<hr>
+<h3 id="1-introduction">1. Introduction</h3>
+<p>This project aims to simulate the traffic of an arbitrary graph and visualize the result with MATLAB. Any directed graph can be used as the input, and the simulation and visualization will be fully automated. Users can also control the details of the roads and nodes.</p>
+<hr>
+<h3 id="2-equations-and-numerical-methods">2. Equations and Numerical Methods</h3>
+<h4 id="21-simulation-of-velocity">2.1 Simulation of velocity</h4>
+<h4 id="211-theoretical-equations">2.1.1 Theoretical Equations</h4>
+<p>The velocity of any vehicle majorly depends on the distance to the car in the front</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mtext> </mtext><mo>=</mo><mtext> </mtext><mrow><mo fence="true">{</mo><mtable rowspacing="0.3599999999999999em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mn>0</mn><mrow><mtext>,              if </mtext><mstyle scriptlevel="0" displaystyle="false"><mi>d</mi></mstyle><mtext>&lt;</mtext><mstyle scriptlevel="0" displaystyle="false"><msub><mi>d</mi><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub></mstyle></mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><msub><mi>v</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mrow><mtext>,        if </mtext><mstyle scriptlevel="0" displaystyle="false"><mi>d</mi></mstyle><mtext>&gt;</mtext><mstyle scriptlevel="0" displaystyle="false"><msub><mi>d</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub></mstyle></mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><msub><mi>v</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo>⋅</mo><mi>log</mi><mo>⁡</mo><mfrac><mi>d</mi><msub><mi>d</mi><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub></mfrac><mi mathvariant="normal">/</mi><mi>log</mi><mo>⁡</mo><mfrac><msub><mi>d</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><msub><mi>d</mi><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub></mfrac><mtext>,  otherwise</mtext></mrow></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">v~ = ~
+\begin{cases}
+    0\text{,~~~~~~~~~~~~~~if $d$&lt;$d_{min}$} \\
+    v_{max} \text{,~~~~~~~~if $d$&gt;$d_{max}$} \\
+    v_{max}\cdot \log{\frac{d}{d_{min}}} / \log{\frac{d_{max}}{d_{min}}} \text{,~~otherwise}\\
+\end{cases}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:4.3331em;vertical-align:-1.91655em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mspace nobreak"> </span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mspace nobreak"> </span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.35002em;"><span style="top:-2.19999em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎩</span></span></span><span style="top:-2.19499em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-2.20499em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-3.15001em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎨</span></span></span><span style="top:-4.2950099999999996em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-4.30501em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-4.60002em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎧</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.8500199999999998em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.41655em;"><span style="top:-4.41655em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">0</span><span class="mord text"><span class="mord">,</span><span class="mord nobreak">              </span><span class="mord">if </span><span class="mord mathdefault">d</span><span class="mord">&lt;</span><span class="mord"><span class="mord mathdefault">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">m</span><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-2.97655em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">m</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord text"><span class="mord">,</span><span class="mord nobreak">        </span><span class="mord">if </span><span class="mord mathdefault">d</span><span class="mord">&gt;</span><span class="mord"><span class="mord mathdefault">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">m</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-1.53655em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">m</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8801079999999999em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3280857142857143em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">m</span><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.44509999999999994em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span><span class="mord">/</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8962079999999999em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3280857142857143em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">m</span><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4101em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">m</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.44509999999999994em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span><span class="mord text"><span class="mord">,</span><span class="mord nobreak">  </span><span class="mord">otherwise</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.91655em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>where</p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi></mrow><annotation encoding="application/x-tex">d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">d</span></span></span></span> is the distance to the car in the front (if my car is the first on the current road, the last car on the next road will be used)</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub></mrow><annotation encoding="application/x-tex">v_{max}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">m</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> is the speed limit. For most of the roads, the value is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>80</mn><mi>k</mi><mi>m</mi><mi mathvariant="normal">/</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">80km/h</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">8</span><span class="mord">0</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mord mathdefault">m</span><span class="mord">/</span><span class="mord mathdefault">h</span></span></span></span>. For elevated highways, the value is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>160</mn><mi>k</mi><mi>m</mi><mi mathvariant="normal">/</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">160km/h</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mord">6</span><span class="mord">0</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mord mathdefault">m</span><span class="mord">/</span><span class="mord mathdefault">h</span></span></span></span>.</li>
+</ul>
+<p>There are cases where this equation does not hold, as explained in the next section 2.1.2.</p>
+<h4 id="212-numerical-methods">2.1.2 Numerical Methods</h4>
+<p>Normally, the location of a vehicle is updated based on</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>l</mi><mi>o</mi><mi>c</mi><mo stretchy="false">(</mo><mi>t</mi><mo>+</mo><mi mathvariant="normal">Δ</mi><mi>t</mi><mo stretchy="false">)</mo><mo>−</mo><mi>l</mi><mi>o</mi><mi>c</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow></mfrac><mo>=</mo><mtext>Velocity(d)</mtext></mrow><annotation encoding="application/x-tex">\frac{loc(t+\Delta t)-loc(t)}{\Delta t} = \text{Velocity(d)}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.113em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">Δ</span><span class="mord mathdefault">t</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">o</span><span class="mord mathdefault">c</span><span class="mopen">(</span><span class="mord mathdefault">t</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord">Δ</span><span class="mord mathdefault">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">o</span><span class="mord mathdefault">c</span><span class="mopen">(</span><span class="mord mathdefault">t</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">Velocity(d)</span></span></span></span></span></span></p>
+<p>where &quot;Velocity&quot; is a function that implements the equation in 2.1.1.<br>
+But there are a few cases where the location is not updated regularly, for example:</p>
+<ul>
+<li>If the car is near its destination and there is no car ahead, it will not accelerate. It should slow down.</li>
+<li>If there is a T-crossing road, straight traffic must go first. This turns out to have a significant influence on the simulation result.</li>
+</ul>
+<h4 id="22-path-finding">2.2 Path finding</h4>
+<p>Since the system accepts any directed graph, we need an efficient path-finding algorithm. A naive solution is to use Dijkstra for every car. But in order to accelerate the program, I used the Floyd algorithm to pre-calculate the route between any two nodes and all cars will look up this table when driving.</p>
+<h4 id="221-dynamic-path-finding">2.2.1 Dynamic path finding</h4>
+<p>The problem with any shortest path algorithm is that it does not take congestion into account. All the traffic will flood in one road while another adjacent road is completely empty because it is a little &quot;longer&quot;.<br>
+In order to solve this problem, the program will take both traffic amount and road length into consideration to find the fastest (not shortest) path. The Floyd table will be updated every second such that the fastest path is changing in accordance to the real-time road condition.<br>
+There is an example to illustrate this.</p>
+<h4 id="23-how-does-the-simulation-work">2.3 How does the simulation work?</h4>
+<pre><code class="language-MATLAB"><div><span class="hljs-keyword">for</span> clock = <span class="hljs-number">1</span>:clockMax
+    <span class="hljs-comment">% generate cars / set destination to idle cars</span>
+    GenerateNewRoutes();
+    <span class="hljs-comment">% update velocity of the cars currently on road</span>
+    UpdateVelocity();
+    <span class="hljs-comment">% move cars &amp; delete arrived cars</span>
+    MoveCar();
+    <span class="hljs-comment">% update road.queue to get new cars on road</span>
+    UpdateRoadQueue();
+
+    <span class="hljs-comment">% store data and misc.</span>
+    ...
+<span class="hljs-keyword">end</span>
+</div></code></pre>
+<ul>
+<li>GenerateNewRoutes: at the beginning of every tick, generate new routes. If there are idle cars, use them first, otherwise create new cars.</li>
+<li>UpdateRoadQueue: New cars will be automatically enqueued and wait. If the road is not full, let go one car from the queue. Notice a car passing by a node will <strong>not</strong> enter the queue. It will not even slow down due to the &quot;straight-traffic-goes-first&quot; principle.</li>
+<li>UpdateVelocity: update the velocity of cars on roads.</li>
+<li>MoveCar: move cars &amp; delete arrived cars. By &quot;deleting an arrived car&quot;, I mean put it back in a pool and fetch it later when we generate a new car.</li>
+</ul>
+<hr>
+<h3 id="3-visualization-interpretation">3. Visualization Interpretation</h3>
+<p>Take a simple cross-square graph as an example:</p>
+<ul>
+<li>There are four nodes and eight lanes in this map</li>
+<li><strong>Nodes</strong> are represented as circles. Gray circles stand for small nodes and orange circles stand for mega-nodes. There is really no difference between them. It is only used in visualization to help users see which nodes are more important.</li>
+<li>There are also &quot;pseudo-nodes&quot; not shown here for special reasons. But let's keep this report simple.</li>
+<li><strong>Paths</strong> are directed. I am using gradual colors to plot them. Cars can only drive from the black end to the orange end. If there is a bi-directional road between two nodes, two paths will be plotted.</li>
+<li><strong>Cars</strong> are those small dots. The color indicates the speed. The faster a car goes, the warmer the color will be.</li>
+<li>Sometimes you may notice a lot of dots crowded in one node (upper-left node in the following figure). <strong>This is not a bug</strong>. They are generated by this node but the road is so crowded that they cannot even leave this node. Think it as, this node is a community where some residents want to go to the supermarket, but they found the road has been full of cars and they can't even drive onto the main road! Those drivers soon get impatient and are moving crazily in that node.
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project2/report/1.png" alt="ff"></li>
+</ul>
+<hr>
+<h3 id="4-tests">4. Tests</h3>
+<p>To make sure the program is correctly coded, I designed a few simple graphs to test the simulation and visualization system.
+The simulation went well as we speculated.
+I tried to change simulation step <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">\Delta t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">Δ</span><span class="mord mathdefault">t</span></span></span></span> in different scales and the result is quite stable. <strong>This step has been repeated for all coming test cases.</strong></p>
+<p>Only one example of the tests is shown here. But there are many more, and you can run them on your own PC.</p>
+<h4 id="41-intelligent-path-finding">4.1 Intelligent path finding</h4>
+<p>In the following example, only the upper node is generating cars and the destination is always the lower node. It is generating so many cars that the traffic exceeds the capacity of one road. You will see some cars start to pass by the third node (the one on the left) when the shortest path is too crowded.<br>
+This is hard to illustrate using screenshots. But it is quite obvious in the movie.
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project2/report/2.png" alt="ff1"></p>
+<hr>
+<h3 id="5-results">5. Results</h3>
+<p>Tata... Here comes the highlight of this project. I spent several hours designing a small city with this system! I want to see whether building a circular elevated highway around the city will solve the congestion problem in the city center.</p>
+<h4 id="51-the-city">5.1 The city</h4>
+<p>There are three central nodes (orange) and fifteen small nodes in the city.<br>
+Around three-quarters of the traffic is moving between those three central nodes. But there will also be traffic coming from small nodes or even rural areas (bottom right nodes). Occasionally, people also want to go to rural areas.
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project2/report/3.PNG" alt="ff">
+You can see from the map that there is no direct road connecting the central nodes, so the cars will dynamically find the fastest path and such paths are changing when time flows.</p>
+<h4 id="52-traffic-without-elevated-highways">5.2 Traffic without elevated highways</h4>
+<p>A screenshot of one moment in the movie.
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project2/report/4.PNG" alt="ff">
+I recorded the time used by each car to reach its destination, including the time used to wait. The histogram is shown below:
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project2/report/5.PNG" alt="ff2">
+Some cars managed to arrive at the destination in less than 10 seconds (the average distance between two nodes is only 200 meters). In the worst case, it would take two minutes for a car to get to the location.</p>
+<h4 id="53-traffic-with-elevated-highways">5.3 Traffic with elevated highways</h4>
+<p>A screenshot of one moment in the movie. Notice a circular elevated highway is built around the city.
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project2/report/6.PNG" alt="ff">
+I also recorded the time spent for each car as below:
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project2/report/7.PNG" alt="ff2">
+It is much better!</p>
+<h4 id="54-comparison">5.4 Comparison</h4>
+<p>The result is much better than I expected. Three-quarters of the traffic is going from one of the central nodes to another central node. I designed this map such that if you want to use the elevated line, it will be <strong>a huge detour</strong>. Yet, it almost halved the maximum waiting time. More importantly, without EL <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>848</mn></mrow><annotation encoding="application/x-tex">848</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">8</span><span class="mord">4</span><span class="mord">8</span></span></span></span> cars arrived their destination and with EL, in the same amount of time, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>964</mn></mrow><annotation encoding="application/x-tex">964</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">9</span><span class="mord">6</span><span class="mord">4</span></span></span></span> cars arrived. The throughput increases by <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>14</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">14\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.80556em;vertical-align:-0.05556em;"></span><span class="mord">1</span><span class="mord">4</span><span class="mord">%</span></span></span></span>.
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project2/report/8.PNG" alt="ff2">
+This is just one interesting application of this system. It accepts any input graph, so there's really a lot can be done.</p>
+<hr>
+<h3 id="6-reference">6. Reference</h3>
+<p>None.<br>
+I started this project from scratch. I coded every single line on my own. It took me a lot of time.</p>
+<hr>
+<h3 id="appendix-a-how-to-run-the-code">Appendix A How to run the code</h3>
+<p>You can run the code in realtime, with any setup. Do not worry about heavy calculation. This is achieved by splitting the project into two parts:</p>
+<ul>
+<li>part A: <strong>TrafficSimulation.m</strong> that does all simulation and stores the data into a mat file.</li>
+<li>part B: <strong>TrafficVisualization.m</strong> that reads the mat file and generate the movie. It supports &quot;fast forward&quot;.</li>
+</ul>
+<p>To be more specific, to run the city example above:</p>
+<pre><code class="language-MATLAB"><div>&gt;&gt; runTrafficSimulationCityEL  <span class="hljs-comment">% a script with the graph info and calls 'TrafficSimulation.m'</span>
+&gt;&gt; load(<span class="hljs-string">'2020-xx-xx-xx-xx.mat'</span>)  <span class="hljs-comment">% Load the data (replace with correct filename)</span>
+&gt;&gt; TrafficVisualization(trafficRecord)  <span class="hljs-comment">% start the movie</span>
+</div></code></pre>
+<p>Alternatively, if you want to skip the simulation, you can also use my pre-calculated result</p>
+<pre><code class="language-MATLAB"><div>&gt;&gt; load(<span class="hljs-string">'CityWithEL.mat'</span>)
+&gt;&gt; TrafficVisualization(trafficRecord, <span class="hljs-number">1</span>)
+</div></code></pre>
+<ul>
+<li>There are a few other scripts with different setups. Feel free to play with them.</li>
+<li>You can also create your own 'RunTrafficSimulationXXX' script with arbitrary graph to play around with the system.</li>
+</ul>
+<hr>
+<h3 id="appendix-b-runtrafficsimulationcityelm">Appendix B RunTrafficSimulationCityEL.m</h3>
+<pre><code class="language-Matlab"><div><span class="hljs-comment">% runTrafficSimulationCityEL</span>
+
+o.roadArray = struct(...
+    ...<span class="hljs-comment">% road idx  1   2   3   4   5   6   7   8   9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26</span>
+    <span class="hljs-string">'nodeStart'</span>,  {<span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">4</span>,   <span class="hljs-number">4</span>,   <span class="hljs-number">5</span>,   <span class="hljs-number">5</span>,   <span class="hljs-number">6</span>,   <span class="hljs-number">6</span>,   <span class="hljs-number">6</span>,   <span class="hljs-number">6</span>,   <span class="hljs-number">7</span>,   <span class="hljs-number">7</span>,   <span class="hljs-number">8</span>,   <span class="hljs-number">8</span>,   <span class="hljs-number">9</span>,   <span class="hljs-number">10</span>,  <span class="hljs-number">11</span>,  <span class="hljs-number">11</span>,  <span class="hljs-number">12</span>,...
+                   <span class="hljs-number">2</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">5</span>,   <span class="hljs-number">10</span>,  <span class="hljs-number">11</span>,  <span class="hljs-number">18</span>,  <span class="hljs-number">11</span>,  <span class="hljs-number">12</span>,  <span class="hljs-number">13</span>,  <span class="hljs-number">14</span>,  <span class="hljs-number">8</span>,   <span class="hljs-number">14</span>,  <span class="hljs-number">9</span>,   <span class="hljs-number">15</span>,  <span class="hljs-number">16</span>,  <span class="hljs-number">17</span>,  <span class="hljs-number">12</span>,  <span class="hljs-number">18</span>,  <span class="hljs-number">13</span>,...
+                   <span class="hljs-number">20</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>,...
+                   <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">20</span>},...
+    <span class="hljs-string">'nodeEnd'</span>,    {<span class="hljs-number">2</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">5</span>,   <span class="hljs-number">10</span>,  <span class="hljs-number">11</span>,  <span class="hljs-number">18</span>,  <span class="hljs-number">11</span>,  <span class="hljs-number">12</span>,  <span class="hljs-number">13</span>,  <span class="hljs-number">14</span>,  <span class="hljs-number">8</span>,   <span class="hljs-number">14</span>,  <span class="hljs-number">9</span>,   <span class="hljs-number">15</span>,  <span class="hljs-number">16</span>,  <span class="hljs-number">17</span>,  <span class="hljs-number">12</span>,  <span class="hljs-number">18</span>,  <span class="hljs-number">13</span>,...
+                   <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">4</span>,   <span class="hljs-number">4</span>,   <span class="hljs-number">5</span>,   <span class="hljs-number">5</span>,   <span class="hljs-number">6</span>,   <span class="hljs-number">6</span>,   <span class="hljs-number">6</span>,   <span class="hljs-number">6</span>,   <span class="hljs-number">7</span>,   <span class="hljs-number">7</span>,   <span class="hljs-number">8</span>,   <span class="hljs-number">8</span>,   <span class="hljs-number">9</span>,   <span class="hljs-number">10</span>,  <span class="hljs-number">11</span>,  <span class="hljs-number">11</span>,  <span class="hljs-number">12</span>,...
+                   <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">20</span>,...
+                   <span class="hljs-number">20</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>},...
+    <span class="hljs-string">'length'</span>,     {<span class="hljs-number">120</span>,<span class="hljs-number">133</span>,<span class="hljs-number">167</span>,<span class="hljs-number">167</span>,<span class="hljs-number">137</span>,<span class="hljs-number">243</span>,<span class="hljs-number">137</span>,<span class="hljs-number">211</span>,<span class="hljs-number">167</span>,<span class="hljs-number">200</span>, <span class="hljs-number">170</span>, <span class="hljs-number">203</span>, <span class="hljs-number">224</span>, <span class="hljs-number">316</span>, <span class="hljs-number">213</span>, <span class="hljs-number">236</span>, <span class="hljs-number">233</span>, <span class="hljs-number">240</span>, <span class="hljs-number">203</span>, <span class="hljs-number">307</span>, <span class="hljs-number">236</span>, <span class="hljs-number">180</span>, <span class="hljs-number">120</span>, <span class="hljs-number">180</span>, <span class="hljs-number">194</span>, <span class="hljs-number">120</span>,...
+                   <span class="hljs-number">120</span>,<span class="hljs-number">133</span>,<span class="hljs-number">167</span>,<span class="hljs-number">167</span>,<span class="hljs-number">137</span>,<span class="hljs-number">243</span>,<span class="hljs-number">137</span>,<span class="hljs-number">211</span>,<span class="hljs-number">167</span>,<span class="hljs-number">200</span>, <span class="hljs-number">170</span>, <span class="hljs-number">203</span>, <span class="hljs-number">224</span>, <span class="hljs-number">316</span>, <span class="hljs-number">213</span>, <span class="hljs-number">236</span>, <span class="hljs-number">233</span>, <span class="hljs-number">240</span>, <span class="hljs-number">203</span>, <span class="hljs-number">307</span>, <span class="hljs-number">236</span>, <span class="hljs-number">180</span>, <span class="hljs-number">120</span>, <span class="hljs-number">180</span>, <span class="hljs-number">194</span>, <span class="hljs-number">120</span>,...
+                   <span class="hljs-number">120</span>,<span class="hljs-number">317</span>,<span class="hljs-number">97</span>, <span class="hljs-number">184</span>,<span class="hljs-number">164</span>,<span class="hljs-number">154</span>,<span class="hljs-number">177</span>,<span class="hljs-number">195</span>,...
+                   <span class="hljs-number">120</span>,<span class="hljs-number">317</span>,<span class="hljs-number">97</span>, <span class="hljs-number">184</span>,<span class="hljs-number">164</span>,<span class="hljs-number">154</span>,<span class="hljs-number">177</span>,<span class="hljs-number">195</span>},...
+    <span class="hljs-string">'imageRoad'</span>,  {<span class="hljs-number">27</span>, <span class="hljs-number">28</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>, <span class="hljs-number">31</span>, <span class="hljs-number">32</span>, <span class="hljs-number">33</span>, <span class="hljs-number">34</span>, <span class="hljs-number">35</span>, <span class="hljs-number">36</span>,  <span class="hljs-number">37</span>,  <span class="hljs-number">38</span>,  <span class="hljs-number">39</span>,  <span class="hljs-number">40</span>,  <span class="hljs-number">41</span>,  <span class="hljs-number">42</span>,  <span class="hljs-number">43</span>,  <span class="hljs-number">44</span>,  <span class="hljs-number">45</span>,  <span class="hljs-number">46</span>,  <span class="hljs-number">47</span>,  <span class="hljs-number">48</span>,  <span class="hljs-number">49</span>,  <span class="hljs-number">50</span>,  <span class="hljs-number">51</span>,  <span class="hljs-number">52</span>,...
+                   <span class="hljs-number">1</span>   <span class="hljs-number">2</span>   <span class="hljs-number">3</span>   <span class="hljs-number">4</span>   <span class="hljs-number">5</span>   <span class="hljs-number">6</span>   <span class="hljs-number">7</span>   <span class="hljs-number">8</span>   <span class="hljs-number">9</span>   <span class="hljs-number">10</span>   <span class="hljs-number">11</span>   <span class="hljs-number">12</span>   <span class="hljs-number">13</span>   <span class="hljs-number">14</span>   <span class="hljs-number">15</span>   <span class="hljs-number">16</span>   <span class="hljs-number">17</span>   <span class="hljs-number">18</span>   <span class="hljs-number">19</span>   <span class="hljs-number">20</span>   <span class="hljs-number">21</span>   <span class="hljs-number">22</span>   <span class="hljs-number">23</span>   <span class="hljs-number">24</span>   <span class="hljs-number">25</span>   <span class="hljs-number">26</span>,...
+                   <span class="hljs-number">61</span>, <span class="hljs-number">62</span>, <span class="hljs-number">63</span>, <span class="hljs-number">64</span>, <span class="hljs-number">65</span>, <span class="hljs-number">66</span>, <span class="hljs-number">67</span>, <span class="hljs-number">68</span>,...
+                   <span class="hljs-number">53</span>, <span class="hljs-number">54</span>, <span class="hljs-number">55</span>, <span class="hljs-number">56</span>, <span class="hljs-number">57</span>, <span class="hljs-number">58</span>, <span class="hljs-number">59</span>, <span class="hljs-number">60</span>}...
+);
+
+o.nodeArray = struct(...
+    ...<span class="hljs-comment">% node idx  1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18    :  19    20</span>
+    <span class="hljs-string">'spawnRate'</span>,  {<span class="hljs-number">1.6</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>,<span class="hljs-number">1.2</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>,<span class="hljs-number">1.2</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>, <span class="hljs-number">0.1</span>,      <span class="hljs-number">0</span>,    <span class="hljs-number">0</span>},...
+    <span class="hljs-string">'destChance'</span>, {<span class="hljs-number">8</span>,   <span class="hljs-number">1</span>,   <span class="hljs-number">1</span>,   <span class="hljs-number">1</span>,   <span class="hljs-number">1</span>,   <span class="hljs-number">1</span>,   <span class="hljs-number">1</span>,   <span class="hljs-number">8</span>,   <span class="hljs-number">1</span>,   <span class="hljs-number">1</span>,   <span class="hljs-number">1</span>,   <span class="hljs-number">8</span>,   <span class="hljs-number">2</span>,   <span class="hljs-number">2</span>,   <span class="hljs-number">3</span>,   <span class="hljs-number">3</span>,   <span class="hljs-number">2</span>,   <span class="hljs-number">2</span>,      <span class="hljs-number">0</span>,    <span class="hljs-number">0</span>}...
+);
+
+<span class="hljs-comment">% visArray can be omitted when simulating, but it is necessary for</span>
+<span class="hljs-comment">% visualization</span>
+o.visArray = struct(...
+    ...<span class="hljs-comment">% node idx  1    2    3     4    5     6      7      8     9     10    11    12    13    14     15    16     17     18    :  19    20</span>
+    <span class="hljs-string">'x'</span>,          {<span class="hljs-number">0.0</span>, <span class="hljs-number">-0.2</span>,<span class="hljs-number">0</span>,    <span class="hljs-number">0.27</span>,<span class="hljs-number">0.27</span>, <span class="hljs-number">-0.27</span>, <span class="hljs-number">-0.67</span>, <span class="hljs-number">-0.4</span>, <span class="hljs-number">0.2</span>,  <span class="hljs-number">0.6</span>,  <span class="hljs-number">0.33</span>, <span class="hljs-number">0</span>,    <span class="hljs-number">-0.2</span>, <span class="hljs-number">-0.73</span>, <span class="hljs-number">-0.73</span>, <span class="hljs-number">0.53</span>, <span class="hljs-number">0.73</span>,  <span class="hljs-number">0.67</span>,    <span class="hljs-number">0.4</span>,  <span class="hljs-number">-0.97</span>},...
+    <span class="hljs-string">'y'</span>,          {<span class="hljs-number">0.0</span>, <span class="hljs-number">0.13</span>,<span class="hljs-number">-0.27</span>,<span class="hljs-number">-0.2</span>,<span class="hljs-number">0.2</span>,  <span class="hljs-number">0.4</span>,   <span class="hljs-number">0</span>,     <span class="hljs-number">-0.4</span>, <span class="hljs-number">-0.53</span>,<span class="hljs-number">-0.13</span>,<span class="hljs-number">0.6</span>,  <span class="hljs-number">0.73</span>, <span class="hljs-number">0.87</span>, <span class="hljs-number">0.4</span>,   <span class="hljs-number">-0.73</span>, <span class="hljs-number">-0.67</span>,<span class="hljs-number">-0.33</span>, <span class="hljs-number">0.4</span>,     <span class="hljs-number">0.97</span>, <span class="hljs-number">-0.33</span>}...
+);
+o.megaNode = [<span class="hljs-number">1</span>, <span class="hljs-number">8</span>, <span class="hljs-number">12</span>];
+
+<span class="hljs-comment">% car speed</span>
+o.vmax = <span class="hljs-number">22.2</span>;  <span class="hljs-comment">% meters/second</span>
+o.dmin = <span class="hljs-number">5</span>;  <span class="hljs-comment">% meters</span>
+o.dmax = <span class="hljs-number">100</span>;  <span class="hljs-comment">% meters</span>
+<span class="hljs-comment">% Simulation speed</span>
+o.simulationTime = <span class="hljs-number">200</span>;  <span class="hljs-comment">% in seconds</span>
+o.dt = <span class="hljs-number">0.1</span>;  <span class="hljs-comment">% in seconds</span>
+o.fastForward = <span class="hljs-number">3</span>;
+
+<span class="hljs-comment">% Run Simulation</span>
+TrafficSimulation(o);
+
+</div></code></pre>
+<hr>
+<h3 id="appendix-c-trafficsimulationm">Appendix C TrafficSimulation.m</h3>
+<pre><code class="language-Matlab"><div><span class="hljs-comment">% Main simulation file</span>
+<span class="hljs-comment">% Ziyi. April 2020.</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">TrafficSimulation</span><span class="hljs-params">(o)</span></span>
+
+<span class="hljs-comment">%% Phase input variables</span>
+checkInput();
+vmax = o.vmax;
+dmin = o.dmin;
+dmax = o.dmax;
+simulationTime = o.simulationTime;
+dt = o.dt;
+clockMax = <span class="hljs-built_in">ceil</span>(simulationTime / dt);
+fastForward = o.fastForward;
+roadArray = o.roadArray;
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(roadArray)
+    roadArray(<span class="hljs-built_in">i</span>).cost = roadArray(<span class="hljs-built_in">i</span>).<span class="hljs-built_in">length</span>;
+<span class="hljs-keyword">end</span>
+nodeArray = o.nodeArray;
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(nodeArray)  <span class="hljs-comment">% Add a new field to 'nodeArray'</span>
+    nodeArray(<span class="hljs-built_in">i</span>).straightPriority = [];
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment">%% Initialization</span>
+<span class="hljs-comment">% carArray</span>
+carArray.velocity = <span class="hljs-number">0</span>;
+carArray.roadNum = <span class="hljs-number">0</span>;
+carArray.position = <span class="hljs-number">0</span>;
+carArray.frontCar = <span class="hljs-number">0</span>;
+carArray.backCar = <span class="hljs-number">0</span>;
+carArray.alive = <span class="hljs-number">0</span>;
+carArray.birthTick = <span class="hljs-number">0</span>;
+carArray.roadArray = [];
+carArray = <span class="hljs-built_in">repmat</span>(carArray, <span class="hljs-number">1</span>, <span class="hljs-number">10</span>);  <span class="hljs-comment">% initialize a car pool with ten inactivated cars</span>
+<span class="hljs-comment">% roadArray</span>
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(roadArray)
+    roadArray(<span class="hljs-built_in">i</span>).frontCar = <span class="hljs-number">0</span>;
+    roadArray(<span class="hljs-built_in">i</span>).backCar = <span class="hljs-number">0</span>;
+    roadArray(<span class="hljs-built_in">i</span>).queue = [];
+<span class="hljs-keyword">end</span>
+path = FloydShortestPath(roadArray, <span class="hljs-built_in">length</span>(nodeArray));
+<span class="hljs-comment">% data recording</span>
+trafficRecord = InitTrafficRecord();
+carRecord = cell(<span class="hljs-number">1</span>, <span class="hljs-built_in">ceil</span>(clockMax/fastForward));
+<span class="hljs-comment">% random number generator</span>
+rng(<span class="hljs-number">1</span>);
+
+<span class="hljs-comment">%% Simulation</span>
+count = <span class="hljs-number">0</span>;
+storeCount = <span class="hljs-number">1</span>;
+time = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">for</span> clock = <span class="hljs-number">1</span>:clockMax
+    <span class="hljs-comment">% generate cars / set destination to idle cars</span>
+    GenerateNewRoutes();
+    <span class="hljs-comment">% update velocity of cars currently on road</span>
+    UpdateVelocity();
+    <span class="hljs-comment">% move cars &amp; delete arrived cars</span>
+    MoveCar();
+    <span class="hljs-comment">% update road.queue to get new cars on road</span>
+    UpdateRoadQueue();
+
+    time = time + dt;
+    <span class="hljs-keyword">if</span> (time &gt; <span class="hljs-number">1</span>)  <span class="hljs-comment">% re-calculate Floyd every five seconds</span>
+        time = <span class="hljs-number">0</span>;
+        UpdateCost();
+    <span class="hljs-keyword">end</span>
+
+    <span class="hljs-comment">% data recording</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">mod</span>(clock, fastForward) == <span class="hljs-number">0</span>)
+        carRecord{storeCount} = carArray;
+        storeCount = storeCount + <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% progress bar</span>
+    <span class="hljs-keyword">if</span> count &gt; <span class="hljs-number">400</span>
+        fprintf(<span class="hljs-string">'Simulation Progress %.2f\n'</span>, clock/clockMax);
+        count = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">end</span>
+    count = count + <span class="hljs-number">1</span>;
+<span class="hljs-keyword">end</span>
+  
+<span class="hljs-built_in">disp</span>(<span class="hljs-string">"Saving data..."</span>);
+trafficRecord.carRecord = carRecord;
+filename = string(datestr(now,<span class="hljs-string">'yyyy-mm-dd-HH-MM'</span>)) + <span class="hljs-string">".mat"</span>;
+save(filename, <span class="hljs-string">'trafficRecord'</span>);
+<span class="hljs-built_in">disp</span>(<span class="hljs-string">"Result saved to file "</span>+filename);
+clear TrafficSimulation
+
+<span class="hljs-comment">%==========================================================================</span>
+
+<span class="hljs-comment">%% nested function: do some basic check of whether input variables are valid</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">checkInput</span><span class="hljs-params">()</span></span>
+    
+    <span class="hljs-comment">% check imageRoad</span>
+    <span class="hljs-keyword">for</span> ii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(o.roadArray)
+        <span class="hljs-keyword">if</span> (o.roadArray(ii).imageRoad &gt; <span class="hljs-number">0</span>)
+            <span class="hljs-built_in">j</span> = o.roadArray(ii).imageRoad;
+            <span class="hljs-keyword">if</span> (o.roadArray(ii).nodeStart ~= o.roadArray(<span class="hljs-built_in">j</span>).nodeEnd ||...
+                o.roadArray(ii).nodeEnd ~= o.roadArray(<span class="hljs-built_in">j</span>).nodeStart ||...
+                o.roadArray(ii).<span class="hljs-built_in">length</span> ~= o.roadArray(<span class="hljs-built_in">j</span>).<span class="hljs-built_in">length</span>)
+                error(<span class="hljs-string">"roadArray input invalid: 'imageRoad'."</span>);
+            <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% check nodeArray</span>
+    <span class="hljs-keyword">for</span> ii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(o.nodeArray)
+        <span class="hljs-keyword">if</span> (o.nodeArray(ii).spawnRate &lt; <span class="hljs-number">0</span> || o.nodeArray(ii).spawnRate &gt; <span class="hljs-number">20</span>)
+            error(<span class="hljs-string">"nodeArray input invalid: 'spawnRate'."</span>);
+        <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">if</span> (o.nodeArray(ii).destChance &lt; <span class="hljs-number">0</span>)
+            error(<span class="hljs-string">"nodeArray input invalid: 'destChance'."</span>);
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% check roadArray</span>
+    <span class="hljs-keyword">for</span> ii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(o.roadArray)
+        <span class="hljs-keyword">if</span> (o.roadArray(ii).<span class="hljs-built_in">length</span> &lt; o.dmin * <span class="hljs-number">2</span>)
+            error(<span class="hljs-string">"roadArray input invalid: 'length' too short compared with 'dmin'."</span>);
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: initialize traffic record object</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[trafficRecord_]</span> = <span class="hljs-title">InitTrafficRecord</span><span class="hljs-params">()</span></span>
+    trafficRecord_.vmax = vmax;
+    trafficRecord_.dmin = dmin;
+    trafficRecord_.dmax = dmax;
+    trafficRecord_.simulationTime = simulationTime;
+    trafficRecord_.dt = dt;
+    trafficRecord_.clockMax = clockMax;
+    trafficRecord_.roadArray = roadArray;
+    trafficRecord_.nodeArray = nodeArray;
+    trafficRecord_.timeToArrive = [];
+    <span class="hljs-keyword">if</span> (isfield(o, <span class="hljs-string">'visArray'</span>) &amp;&amp; <span class="hljs-built_in">length</span>(o.visArray)==<span class="hljs-built_in">length</span>(nodeArray))
+        trafficRecord_.visArray = o.visArray;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">if</span> (isfield(o, <span class="hljs-string">'megaNode'</span>))
+        trafficRecord_.megaNode = o.megaNode;
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: at the beginning of every tick, generate new routes. If</span>
+<span class="hljs-comment">% there are idle cars, use them first, otherwise create new cars.</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">GenerateNewRoutes</span><span class="hljs-params">()</span></span>
+    
+    <span class="hljs-comment">% Generate routes for every node</span>
+    <span class="hljs-keyword">for</span> ii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(nodeArray)
+        targetNumCars = nodeArray(ii).spawnRate * dt; <span class="hljs-comment">% note: this number can be smaller than 1</span>
+        <span class="hljs-comment">% first generate integer part of 'targetNumCars'</span>
+        <span class="hljs-keyword">while</span> (targetNumCars &gt;= <span class="hljs-number">1</span>)
+            targetNumCars = targetNumCars - <span class="hljs-number">1</span>;
+            GenerateOneNewRoute(ii);
+        <span class="hljs-keyword">end</span>
+        <span class="hljs-comment">% then generate decimal part of 'targetNumCars'</span>
+        randNum = <span class="hljs-built_in">rand</span>(<span class="hljs-number">1</span>);
+        <span class="hljs-keyword">if</span> (randNum &lt; targetNumCars)
+            GenerateOneNewRoute(ii);
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    
+    
+    <span class="hljs-comment">%% double nested function: Generate one route from 'origin'</span>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">GenerateOneNewRoute</span><span class="hljs-params">(origin)</span></span>
+        
+        <span class="hljs-keyword">persistent</span> destChanceSum
+    
+        <span class="hljs-comment">% Calculate 'destChanceSum' if this is the first call of this</span>
+        <span class="hljs-comment">% function</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">isempty</span>(destChanceSum)
+            destChanceSum = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">for</span> iii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(nodeArray)
+                destChanceSum = destChanceSum + nodeArray(iii).destChance;
+            <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">end</span>
+    
+        localDestChanceSum = destChanceSum - nodeArray(origin).destChance;
+        sum = <span class="hljs-number">0</span>;
+        randNumDest = <span class="hljs-built_in">rand</span>(<span class="hljs-number">1</span>);
+        <span class="hljs-keyword">for</span> iii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(nodeArray)
+            <span class="hljs-keyword">if</span> (iii == origin), <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>
+            <span class="hljs-keyword">if</span> (path(origin, iii) == <span class="hljs-number">0</span>), <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>  <span class="hljs-comment">% no route</span>
+            sum = sum + nodeArray(iii).destChance;
+            <span class="hljs-keyword">if</span> (sum / localDestChanceSum &gt; randNumDest)
+                <span class="hljs-comment">% the iii-th node is chosen to be destination</span>
+                carIndex = GetIdleCar();
+                carPath = GenerateRoadArray(origin, iii);
+                carArray(carIndex).roadNum = carPath(<span class="hljs-number">1</span>);
+                carArray(carIndex).alive = <span class="hljs-number">2</span>;
+                carArray(carIndex).birthTick = clock;
+                carArray(carIndex).roadArray = carPath;
+                <span class="hljs-comment">% append to the waiting queue of this road</span>
+                roadIdx = carPath(<span class="hljs-number">1</span>);
+                roadArray(roadIdx).queue(<span class="hljs-keyword">end</span>+<span class="hljs-number">1</span>) = carIndex;
+                <span class="hljs-comment">% do not generate another route</span>
+                <span class="hljs-keyword">break</span>;
+            <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+
+
+    <span class="hljs-comment">%% double nested function: Get the index of an idle car. Generate a new</span>
+    <span class="hljs-comment">%  car if there is none.</span>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[res]</span> = <span class="hljs-title">GetIdleCar</span><span class="hljs-params">()</span></span>
+        <span class="hljs-keyword">for</span> iii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(carArray)
+            <span class="hljs-keyword">if</span> (carArray(iii).alive == <span class="hljs-number">0</span>)
+                res = iii;
+                <span class="hljs-keyword">return</span>;
+            <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">end</span>
+        <span class="hljs-comment">% no idle car left, generate some new cars</span>
+        num = <span class="hljs-built_in">length</span>(carArray);
+        carArray(num+<span class="hljs-number">1</span>:num*<span class="hljs-number">2</span>) = carArray(<span class="hljs-number">1</span>:num);  <span class="hljs-comment">% double the size every time</span>
+        <span class="hljs-keyword">for</span> iii = num+<span class="hljs-number">1</span>:num*<span class="hljs-number">2</span>
+            carArray(iii).velocity = <span class="hljs-number">0</span>;
+            carArray(iii).roadNum = <span class="hljs-number">0</span>;
+            carArray(iii).position = <span class="hljs-number">0</span>;
+            carArray(iii).frontCar = <span class="hljs-number">0</span>;
+            carArray(iii).backCar = <span class="hljs-number">0</span>;
+            carArray(iii).alive = <span class="hljs-number">0</span>;
+            carArray(iii).birthTick = <span class="hljs-number">0</span>;
+            carArray(iii).roadArray = [];
+        <span class="hljs-keyword">end</span>
+
+        res = num + <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">end</span>
+    
+    
+    <span class="hljs-comment">%% Generate an array of path (represented by road number) from 'origin' </span>
+    <span class="hljs-comment">%  node and 'dest' node</span>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[res]</span> = <span class="hljs-title">GenerateRoadArray</span><span class="hljs-params">(origin, dest)</span></span>
+        <span class="hljs-keyword">if</span> (path(origin, dest) == <span class="hljs-number">-1</span>)
+            res = GetRoadIndex(origin, dest);
+            <span class="hljs-keyword">return</span>;
+        <span class="hljs-keyword">else</span>
+            res = GenerateRoadArray(origin, path(origin, dest));
+            res = [res, GenerateRoadArray(path(origin, dest), dest)];
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: get road index from 'nodeStart' and 'nodeEnd'</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[res]</span> = <span class="hljs-title">GetRoadIndex</span><span class="hljs-params">(nodeStart, nodeEnd)</span></span>
+    
+    <span class="hljs-keyword">for</span> ii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(roadArray)
+        <span class="hljs-keyword">if</span> (roadArray(ii).nodeStart == nodeStart &amp;&amp; roadArray(ii).nodeEnd == nodeEnd)
+            res = ii;
+            <span class="hljs-keyword">return</span>;
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    res = <span class="hljs-number">-1</span>;
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: if the road is not full, let go one car from queue</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">UpdateRoadQueue</span><span class="hljs-params">()</span></span>
+
+    <span class="hljs-keyword">for</span> ii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(roadArray)
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">isempty</span>(roadArray(ii).queue)
+            <span class="hljs-keyword">continue</span>;
+        <span class="hljs-keyword">end</span>
+        queueCarIdx = roadArray(ii).queue(<span class="hljs-number">1</span>);
+        backCarIdx = roadArray(ii).backCar;
+        <span class="hljs-keyword">if</span> (backCarIdx &gt; <span class="hljs-number">0</span> &amp;&amp;...
+            carArray(backCarIdx).position * roadArray(ii).<span class="hljs-built_in">length</span> &lt; dmin)
+            <span class="hljs-comment">% this road is full now</span>
+            <span class="hljs-keyword">continue</span>;
+        <span class="hljs-keyword">elseif</span> ~<span class="hljs-built_in">isempty</span>(nodeArray(roadArray(ii).nodeStart).straightPriority)
+            <span class="hljs-comment">% straight traffic goes first</span>
+            <span class="hljs-keyword">continue</span>;
+        <span class="hljs-keyword">else</span>
+            <span class="hljs-comment">% good to go!</span>
+            carArray(queueCarIdx).frontCar = backCarIdx;
+            carArray(queueCarIdx).alive = <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">if</span> (backCarIdx &gt; <span class="hljs-number">0</span>)
+                carArray(backCarIdx).backCar = queueCarIdx;
+            <span class="hljs-keyword">end</span>
+            roadArray(ii).backCar = queueCarIdx;
+            <span class="hljs-keyword">if</span> (roadArray(ii).frontCar == <span class="hljs-number">0</span>)
+                roadArray(ii).frontCar = queueCarIdx;
+            <span class="hljs-keyword">end</span>
+            roadArray(ii).queue(<span class="hljs-number">1</span>) = [];  <span class="hljs-comment">% pop from queue</span>
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: update the velocity of cars on roads</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">UpdateVelocity</span><span class="hljs-params">()</span></span>
+
+    <span class="hljs-comment">% update velocity</span>
+    <span class="hljs-keyword">for</span> ii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(roadArray)
+        carIdx = roadArray(ii).backCar;
+        <span class="hljs-keyword">while</span> (carIdx &gt; <span class="hljs-number">0</span>)
+            frontCarIdx = carArray(carIdx).frontCar;
+            <span class="hljs-keyword">if</span> (frontCarIdx == <span class="hljs-number">0</span>)
+                <span class="hljs-comment">% no car ahead (on current road)</span>
+                <span class="hljs-keyword">if</span> (<span class="hljs-built_in">length</span>(carArray(carIdx).roadArray) == <span class="hljs-number">1</span>)  <span class="hljs-comment">% if near destination</span>
+                    carArray(carIdx).velocity = Velocity((dmax + dmin)/<span class="hljs-number">2</span>);
+                <span class="hljs-keyword">else</span>
+                    nextRoadIdx = carArray(carIdx).roadArray(<span class="hljs-number">2</span>);
+                    nextCarIdx = roadArray(nextRoadIdx).backCar;
+                    <span class="hljs-keyword">if</span> (nextCarIdx == <span class="hljs-number">0</span>)  
+                        <span class="hljs-comment">% if no car ahead (even taking next road into consideration)</span>
+                        carArray(carIdx).velocity = Velocity((dmax + dmin)/<span class="hljs-number">2</span>);
+                    <span class="hljs-keyword">else</span>
+                        <span class="hljs-comment">% calculate the dist to the car on next road</span>
+                        currentRoadIdx = carArray(carIdx).roadArray(<span class="hljs-number">1</span>);
+                        dist_ = (<span class="hljs-number">1</span> - carArray(carIdx).position) * roadArray(currentRoadIdx).<span class="hljs-built_in">length</span>;
+                        dist = dist_ + carArray(nextCarIdx).position * roadArray(nextRoadIdx).<span class="hljs-built_in">length</span>;
+                        carArray(carIdx).velocity = Velocity(dist);
+                        <span class="hljs-comment">% add my carIdx to straightPriority if not there</span>
+                        <span class="hljs-keyword">if</span> (dist_ &lt; dmin)
+                            nodeIdx = roadArray(currentRoadIdx).nodeEnd;
+                            <span class="hljs-keyword">if</span> <span class="hljs-built_in">isempty</span>(<span class="hljs-built_in">find</span>(nodeArray(nodeIdx).straightPriority == carIdx, <span class="hljs-number">1</span>))
+                                nodeArray(nodeIdx).straightPriority = [nodeArray(nodeIdx).straightPriority, carIdx];
+                            <span class="hljs-keyword">end</span>
+                        <span class="hljs-keyword">end</span>
+                    <span class="hljs-keyword">end</span>
+                <span class="hljs-keyword">end</span>
+            <span class="hljs-keyword">else</span>
+                <span class="hljs-comment">% car ahead</span>
+                dist = roadArray(ii).<span class="hljs-built_in">length</span> * (carArray(frontCarIdx).position - carArray(carIdx).position);
+                carArray(carIdx).velocity = Velocity(dist);
+            <span class="hljs-keyword">end</span>
+            carIdx = frontCarIdx;
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    
+    
+    <span class="hljs-comment">%% double nested function: Calculate velocity from distance to front car</span>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[res]</span> = <span class="hljs-title">Velocity</span><span class="hljs-params">(d)</span></span>
+
+        <span class="hljs-keyword">if</span>(d &lt; dmin)
+            res=<span class="hljs-number">0</span>;
+        <span class="hljs-keyword">elseif</span>(d &lt; dmax)
+            res = vmax * <span class="hljs-built_in">log</span>(d/dmin) / <span class="hljs-built_in">log</span>(dmax/dmin);
+        <span class="hljs-keyword">else</span>
+            res = vmax;
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: move cars &amp; delete arrived cars</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">MoveCar</span><span class="hljs-params">()</span></span>
+    
+    <span class="hljs-keyword">for</span> ii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(carArray)
+        <span class="hljs-keyword">if</span> (carArray(ii).alive ~= <span class="hljs-number">1</span>), <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>
+        deltaDist = carArray(ii).velocity * dt;
+        roadLength = roadArray(carArray(ii).roadNum).<span class="hljs-built_in">length</span>;
+        carArray(ii).position = carArray(ii).position + deltaDist / roadLength;
+
+        <span class="hljs-keyword">if</span> (carArray(ii).position &gt; <span class="hljs-number">1</span>)  <span class="hljs-comment">% end of current road</span>
+
+            carArray(ii).roadArray(<span class="hljs-number">1</span>) = [];
+            <span class="hljs-keyword">if</span> <span class="hljs-built_in">isempty</span>(carArray(ii).roadArray)  <span class="hljs-comment">% destination arrived</span>
+                currentRoadIdx = carArray(ii).roadNum;
+                backCarIdx = carArray(ii).backCar;
+                <span class="hljs-comment">% update car</span>
+                DeleteCar(ii);
+                <span class="hljs-comment">% update back car</span>
+                <span class="hljs-keyword">if</span> (backCarIdx &gt; <span class="hljs-number">0</span>)
+                    carArray(backCarIdx).frontCar = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">end</span>
+                <span class="hljs-comment">% update road</span>
+                roadArray(currentRoadIdx).frontCar = backCarIdx;
+                <span class="hljs-keyword">if</span> (roadArray(currentRoadIdx).backCar == ii)
+                    roadArray(currentRoadIdx).backCar = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">end</span>
+            <span class="hljs-keyword">else</span>  <span class="hljs-comment">% move to next road</span>
+                currentRoadIdx = carArray(ii).roadNum;
+                nextRoadIdx = carArray(ii).roadArray(<span class="hljs-number">1</span>);
+                backCarIdx = carArray(ii).backCar;
+                frontCarIdx = roadArray(nextRoadIdx).backCar;
+                <span class="hljs-comment">% update this car</span>
+                carArray(ii).roadNum = nextRoadIdx;
+                carArray(ii).position = (carArray(ii).position - <span class="hljs-number">1</span>) * roadArray(currentRoadIdx).<span class="hljs-built_in">length</span> / roadArray(nextRoadIdx).<span class="hljs-built_in">length</span>;
+                carArray(ii).frontCar = frontCarIdx;
+                carArray(ii).backCar = <span class="hljs-number">0</span>;
+                <span class="hljs-comment">% update back car</span>
+                <span class="hljs-keyword">if</span> (backCarIdx &gt; <span class="hljs-number">0</span>)
+                    carArray(backCarIdx).frontCar = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">end</span>
+                <span class="hljs-comment">% update front car</span>
+                <span class="hljs-keyword">if</span> (frontCarIdx &gt; <span class="hljs-number">0</span>)
+                    carArray(frontCarIdx).backCar = ii;
+                <span class="hljs-keyword">end</span>
+                <span class="hljs-comment">% update current road</span>
+                roadArray(currentRoadIdx).frontCar = backCarIdx;
+                <span class="hljs-keyword">if</span> (roadArray(currentRoadIdx).backCar == ii)
+                    roadArray(currentRoadIdx).backCar = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">end</span>
+                <span class="hljs-comment">% update next road</span>
+                roadArray(nextRoadIdx).backCar = ii;
+                <span class="hljs-keyword">if</span> (roadArray(nextRoadIdx).frontCar == <span class="hljs-number">0</span>)
+                    roadArray(nextRoadIdx).frontCar = ii;
+                <span class="hljs-keyword">end</span>
+                <span class="hljs-comment">% update node</span>
+                nodeIdx = roadArray(currentRoadIdx).nodeEnd;
+                idx = <span class="hljs-built_in">find</span>(nodeArray(nodeIdx).straightPriority == ii);
+                <span class="hljs-keyword">if</span> ~<span class="hljs-built_in">isempty</span>(idx)
+                    nodeArray(nodeIdx).straightPriority(idx) = [];
+                <span class="hljs-keyword">end</span>
+            <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+    
+    
+    <span class="hljs-comment">% double nested function: inactivate the car once it arrives at</span>
+    <span class="hljs-comment">% destination</span>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">DeleteCar</span><span class="hljs-params">(idx)</span></span>
+        
+        seconds = dt * (clock-carArray(idx).birthTick);
+        trafficRecord.timeToArrive = [trafficRecord.timeToArrive, seconds];
+        carArray(idx).velocity = <span class="hljs-number">0</span>;
+        carArray(idx).roadNum = <span class="hljs-number">0</span>;
+        carArray(idx).position = <span class="hljs-number">0</span>;
+        carArray(idx).frontCar = <span class="hljs-number">0</span>;
+        carArray(idx).backCar = <span class="hljs-number">0</span>;
+        carArray(idx).alive = <span class="hljs-number">0</span>;
+        carArray(idx).birthTick = <span class="hljs-number">0</span>;
+        carArray(idx).roadArray = [];
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: update the cost of each edge in graph based on rael-time traffic</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">UpdateCost</span><span class="hljs-params">()</span></span>
+
+    cars = carArray(([carArray.alive] == <span class="hljs-number">1</span>) | ([carArray.alive] == <span class="hljs-number">2</span>));
+    <span class="hljs-keyword">for</span> ii = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(roadArray)
+        numCars = nnz([cars.roadNum] == ii) + <span class="hljs-number">1</span>;
+        roadArray(ii).cost = roadArray(ii).<span class="hljs-built_in">length</span> + numCars * dmin * <span class="hljs-number">6</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% call floyd again</span>
+    path = FloydShortestPath(roadArray, <span class="hljs-built_in">length</span>(nodeArray));
+<span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment">% END of TrafficSimulation.m</span>
+</div></code></pre>
+<hr>
+<h3 id="appendix-d-trafficvisualizationm">Appendix D TrafficVisualization.m</h3>
+<pre><code class="language-MATLAB"><div><span class="hljs-comment">% Main visualization file</span>
+<span class="hljs-comment">% Ziyi. April 2020.</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">TrafficVisualization</span><span class="hljs-params">(trafficRecord, fastForward)</span></span>
+
+<span class="hljs-comment">%% Phase input variables</span>
+<span class="hljs-keyword">if</span> (nargin&lt;<span class="hljs-number">2</span>), fastForward=<span class="hljs-number">1</span>;<span class="hljs-keyword">end</span>
+<span class="hljs-keyword">if</span> (~isfield(trafficRecord, <span class="hljs-string">'visArray'</span>))
+    error(<span class="hljs-string">"TrafficVisualization needs a visArray to plot the figure. It might be missing or invalid."</span>);
+<span class="hljs-keyword">end</span>
+vmax = trafficRecord.vmax;
+dmin = trafficRecord.dmin;
+dmax = trafficRecord.dmax;
+simulationTime = trafficRecord.simulationTime;
+dt = trafficRecord.dt;
+clockMax = trafficRecord.clockMax;
+roadArray = trafficRecord.roadArray;
+roadArray(<span class="hljs-number">1</span>).xyStart = [];  <span class="hljs-comment">% Add two new fields to 'roadArray'</span>
+roadArray(<span class="hljs-number">1</span>).vec = [];
+nodeArray = trafficRecord.nodeArray;
+nodeArray(<span class="hljs-number">1</span>).xy = [];  <span class="hljs-comment">% Add one new field to 'nodeArray'</span>
+carRecord = trafficRecord.carRecord;
+visArray = trafficRecord.visArray;
+assert(<span class="hljs-built_in">length</span>(visArray) == <span class="hljs-built_in">length</span>(nodeArray));
+megaNode = [];
+<span class="hljs-keyword">if</span> isfield(trafficRecord, <span class="hljs-string">'megaNode'</span>)
+    megaNode = trafficRecord.megaNode;
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment">%% Fast forward</span>
+carRecord = carRecord(<span class="hljs-number">1</span>:fastForward:<span class="hljs-keyword">end</span>);
+
+<span class="hljs-comment">%% Draw background (road &amp; node)</span>
+<span class="hljs-comment">% everything drawn in [-1, 1]*[-1, 1]</span>
+<span class="hljs-built_in">figure</span>
+set(gcf, <span class="hljs-string">'Position'</span>,  [<span class="hljs-number">200</span>, <span class="hljs-number">200</span>, <span class="hljs-number">1000</span>, <span class="hljs-number">1000</span>])
+axis manual
+axis([<span class="hljs-number">-1</span> <span class="hljs-number">1</span> <span class="hljs-number">-1</span> <span class="hljs-number">1</span>]);
+pbaspect([<span class="hljs-number">1</span> <span class="hljs-number">1</span> <span class="hljs-number">1</span>]);
+<span class="hljs-built_in">hold</span> on
+title(<span class="hljs-string">"Traffic Simulation Visualization"</span>);
+
+nodeRadius = <span class="hljs-number">0.03</span>;
+roadWidth = nodeRadius * <span class="hljs-number">0.7</span>;
+<span class="hljs-comment">% roads</span>
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(roadArray)
+    <span class="hljs-keyword">if</span> (roadArray(<span class="hljs-built_in">i</span>).imageRoad == <span class="hljs-number">0</span>)
+       <span class="hljs-comment">% one-way road</span>
+       DrawOnewayRoad(<span class="hljs-built_in">i</span>);
+    <span class="hljs-keyword">else</span>
+       <span class="hljs-keyword">if</span> (roadArray(<span class="hljs-built_in">i</span>).imageRoad &lt; <span class="hljs-built_in">i</span>), <span class="hljs-keyword">continue</span>;<span class="hljs-keyword">end</span>
+       <span class="hljs-comment">% two-way road</span>
+       DrawTwowayRoad(<span class="hljs-built_in">i</span>);
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+<span class="hljs-comment">% nodes</span>
+pseudoNode = [<span class="hljs-number">19</span>, <span class="hljs-number">20</span>];
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(visArray)
+    r = nodeRadius;
+    col = <span class="hljs-string">'#DDDDDD'</span>;
+    <span class="hljs-keyword">if</span> ~<span class="hljs-built_in">isempty</span>(<span class="hljs-built_in">find</span>(megaNode == <span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>))
+        r = nodeRadius * <span class="hljs-number">1.6</span>;
+        col = <span class="hljs-string">'#EDB120'</span>;
+    <span class="hljs-keyword">elseif</span> ~<span class="hljs-built_in">isempty</span>(<span class="hljs-built_in">find</span>(pseudoNode == <span class="hljs-built_in">i</span>, <span class="hljs-number">1</span>))
+        r = nodeRadius * <span class="hljs-number">0.8</span>;
+        col = <span class="hljs-string">'white'</span>;
+    <span class="hljs-keyword">end</span>
+    coord = [visArray(<span class="hljs-built_in">i</span>).x-r, visArray(<span class="hljs-built_in">i</span>).y-r, <span class="hljs-number">2</span>*r, <span class="hljs-number">2</span>*r];
+    rectangle(<span class="hljs-string">'Position'</span>, coord, <span class="hljs-string">'Curvature'</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>], <span class="hljs-string">'FaceColor'</span>, col, <span class="hljs-string">'EdgeColor'</span>, <span class="hljs-string">'black'</span>);
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% Prepare handles of cars</span>
+carSize = <span class="hljs-number">14</span>;
+hcar = <span class="hljs-built_in">zeros</span>(<span class="hljs-number">1</span>, <span class="hljs-built_in">length</span>(roadArray));
+hqueue = <span class="hljs-built_in">zeros</span>(<span class="hljs-number">1</span>, <span class="hljs-built_in">length</span>(nodeArray));
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(roadArray)
+    hcar(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">scatter</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, carSize, <span class="hljs-string">'black'</span>, <span class="hljs-string">'filled'</span>, <span class="hljs-string">'MarkerEdgeColor'</span>, <span class="hljs-string">'black'</span>);
+<span class="hljs-keyword">end</span>
+randPosSize = <span class="hljs-number">2000</span>;
+randPos = <span class="hljs-built_in">rand</span>(randPosSize, <span class="hljs-number">1</span>);  <span class="hljs-comment">% a pre-calculated random position array</span>
+randPos = [<span class="hljs-built_in">cos</span>(randPos.*<span class="hljs-number">2.</span>*<span class="hljs-built_in">pi</span>), <span class="hljs-built_in">sin</span>(randPos.*<span class="hljs-number">2.</span>*<span class="hljs-built_in">pi</span>)];
+randPos = randPos .* (<span class="hljs-built_in">rand</span>(randPosSize, <span class="hljs-number">1</span>)+<span class="hljs-number">0.2</span>) ./ <span class="hljs-number">1.4</span> .* nodeRadius;
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(nodeArray)
+    hqueue(<span class="hljs-built_in">i</span>) = <span class="hljs-built_in">scatter</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, carSize, <span class="hljs-string">'black'</span>, <span class="hljs-string">'filled'</span>, <span class="hljs-string">'MarkerEdgeColor'</span>, <span class="hljs-string">'black'</span>);
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment">%% Start Animation</span>
+pauseTime = <span class="hljs-number">0.00</span>;  <span class="hljs-comment">% pauseTime/FPS control</span>
+<span class="hljs-keyword">if</span> (fastForward&gt;<span class="hljs-number">1</span>), pauseTime=<span class="hljs-number">0</span>;<span class="hljs-keyword">end</span>  <span class="hljs-comment">% do not pause if fast forward is set</span>
+<span class="hljs-keyword">for</span> clock = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(carRecord)<span class="hljs-number">-2</span>
+    
+    pause(pauseTime);
+    carArray = carRecord{clock};
+    roadCar = carArray([carArray.alive] == <span class="hljs-number">1</span>);
+    queueCar = carArray([carArray.alive] == <span class="hljs-number">2</span>);
+    <span class="hljs-comment">% plot cars on road (alive == 1)</span>
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(roadArray)
+        cars = roadCar([roadCar.roadNum] == <span class="hljs-built_in">i</span>);
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">isempty</span>(cars)
+            set(hcar(<span class="hljs-built_in">i</span>), <span class="hljs-string">'xdata'</span>, [], <span class="hljs-string">'ydata'</span>, []);
+            <span class="hljs-keyword">continue</span>;
+        <span class="hljs-keyword">end</span>
+        loc = <span class="hljs-built_in">repmat</span>(roadArray(<span class="hljs-built_in">i</span>).xyStart, <span class="hljs-built_in">length</span>(cars), <span class="hljs-number">1</span>);
+        loc = loc + roadArray(<span class="hljs-built_in">i</span>).vec .* [cars.position]';
+        velocity = [cars.velocity];
+        <span class="hljs-comment">% plot</span>
+        set(hcar(<span class="hljs-built_in">i</span>), <span class="hljs-string">'xdata'</span>, loc(:, <span class="hljs-number">1</span>), <span class="hljs-string">'ydata'</span>, loc(:, <span class="hljs-number">2</span>), <span class="hljs-string">'cdata'</span>, Velocity2Color(velocity));
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% plot cars in queue (alive == 2)</span>
+    roadNum = [queueCar.roadNum];
+    <span class="hljs-keyword">if</span> <span class="hljs-built_in">isempty</span>(roadNum)
+        nodeNum = [];
+    <span class="hljs-keyword">else</span>
+        nodeNum = [roadArray(roadNum).nodeStart];
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">length</span>(nodeArray)
+        num = nnz(nodeNum == <span class="hljs-built_in">i</span>);
+        <span class="hljs-keyword">if</span> (num==<span class="hljs-number">0</span>)
+            set(hqueue(<span class="hljs-built_in">i</span>), <span class="hljs-string">'xdata'</span>, [], <span class="hljs-string">'ydata'</span>, []);
+            <span class="hljs-keyword">continue</span>;
+        <span class="hljs-keyword">end</span>
+        <span class="hljs-keyword">if</span> (num&gt;<span class="hljs-number">50</span>), num=<span class="hljs-number">50</span>;<span class="hljs-keyword">end</span>  <span class="hljs-comment">% dont plot too many dots in the waiting area</span>
+        startIdx = randi(randPosSize<span class="hljs-number">-1</span>-num);
+        loc = randPos(startIdx:startIdx+num<span class="hljs-number">-1</span>, :);
+        loc = loc + nodeArray(<span class="hljs-built_in">i</span>).xy;
+        velocity = <span class="hljs-built_in">zeros</span>(num, <span class="hljs-number">1</span>);
+        <span class="hljs-comment">% plot</span>
+        set(hqueue(<span class="hljs-built_in">i</span>), <span class="hljs-string">'xdata'</span>, loc(:, <span class="hljs-number">1</span>), <span class="hljs-string">'ydata'</span>, loc(:, <span class="hljs-number">2</span>), <span class="hljs-string">'cdata'</span>, Velocity2Color(velocity));
+    <span class="hljs-keyword">end</span>
+    
+    <span class="hljs-comment">% update figure</span>
+    drawnow
+<span class="hljs-keyword">end</span>
+<span class="hljs-built_in">disp</span>(<span class="hljs-string">"Traffic movie done."</span>);
+
+
+<span class="hljs-comment">%% nested function: draw one-way road</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">DrawOnewayRoad</span><span class="hljs-params">(idx)</span></span>
+
+    x0 = visArray(roadArray(idx).nodeStart).x;
+    y0 = visArray(roadArray(idx).nodeStart).y;
+    x1 = visArray(roadArray(idx).nodeEnd).x;
+    y1 = visArray(roadArray(idx).nodeEnd).y;
+    dist = norm([x0-x1, y0-y1]);
+    orthVec = [y0-y1, x1-x0]/dist;  <span class="hljs-comment">% unit vector, anti-clockwise 90 degrees + from start to end</span>
+    orthVec = orthVec .* roadWidth ./ <span class="hljs-number">2</span>;
+    copperColormap = copper(<span class="hljs-number">100</span>);
+    colormap(copperColormap(<span class="hljs-number">1</span>:<span class="hljs-number">85</span>, :));
+    patch([x0+orthVec(<span class="hljs-number">1</span>), x1+orthVec(<span class="hljs-number">1</span>)], [y0+orthVec(<span class="hljs-number">2</span>), y1+orthVec(<span class="hljs-number">2</span>)], [<span class="hljs-number">0.1</span>, <span class="hljs-number">0.9</span>], <span class="hljs-string">'FaceColor'</span>,<span class="hljs-string">'none'</span>,<span class="hljs-string">'EdgeColor'</span>,<span class="hljs-string">'interp'</span>);
+    patch([x0-orthVec(<span class="hljs-number">1</span>), x1-orthVec(<span class="hljs-number">1</span>)], [y0-orthVec(<span class="hljs-number">2</span>), y1-orthVec(<span class="hljs-number">2</span>)], [<span class="hljs-number">0.1</span>, <span class="hljs-number">0.9</span>], <span class="hljs-string">'FaceColor'</span>,<span class="hljs-string">'none'</span>,<span class="hljs-string">'EdgeColor'</span>,<span class="hljs-string">'interp'</span>);
+    <span class="hljs-comment">% set new fields</span>
+    roadArray(idx).xyStart = [x0, y0];
+    roadArray(idx).vec = [x1-x0, y1-y0];
+    nodeArray(roadArray(idx).nodeStart).xy = [x0, y0];
+    nodeArray(roadArray(idx).nodeEnd).xy = [x1, y1];
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: draw two-way road</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">DrawTwowayRoad</span><span class="hljs-params">(idx)</span></span>
+
+    x0 = visArray(roadArray(idx).nodeStart).x;
+    y0 = visArray(roadArray(idx).nodeStart).y;
+    x1 = visArray(roadArray(idx).nodeEnd).x;
+    y1 = visArray(roadArray(idx).nodeEnd).y;
+    dist = norm([x0-x1, y0-y1]);
+    orthVec = [y0-y1, x1-x0]/dist;  <span class="hljs-comment">% unit vector, anti-clockwise 90 degrees + from start to end</span>
+    dispVec = orthVec .* roadWidth .* <span class="hljs-number">0.2</span>;
+    orthVec = orthVec .* roadWidth;
+    copperColormap = copper(<span class="hljs-number">100</span>);
+    colormap(copperColormap(<span class="hljs-number">1</span>:<span class="hljs-number">85</span>, :));
+    patch([x0-dispVec(<span class="hljs-number">1</span>), x1-dispVec(<span class="hljs-number">1</span>)], [y0-dispVec(<span class="hljs-number">2</span>), y1-dispVec(<span class="hljs-number">2</span>)], [<span class="hljs-number">0.1</span>, <span class="hljs-number">0.9</span>], <span class="hljs-string">'FaceColor'</span>,<span class="hljs-string">'none'</span>,<span class="hljs-string">'EdgeColor'</span>,<span class="hljs-string">'interp'</span>);
+    patch([x0-orthVec(<span class="hljs-number">1</span>)-dispVec(<span class="hljs-number">1</span>), x1-orthVec(<span class="hljs-number">1</span>)-dispVec(<span class="hljs-number">1</span>)], [y0-orthVec(<span class="hljs-number">2</span>)-dispVec(<span class="hljs-number">2</span>), y1-orthVec(<span class="hljs-number">2</span>)-dispVec(<span class="hljs-number">2</span>)], [<span class="hljs-number">0.1</span>, <span class="hljs-number">0.9</span>], <span class="hljs-string">'FaceColor'</span>,<span class="hljs-string">'none'</span>,<span class="hljs-string">'EdgeColor'</span>,<span class="hljs-string">'interp'</span>);
+    patch([x1+dispVec(<span class="hljs-number">1</span>), x0+dispVec(<span class="hljs-number">1</span>)], [y1+dispVec(<span class="hljs-number">2</span>), y0+dispVec(<span class="hljs-number">2</span>)], [<span class="hljs-number">0.1</span>, <span class="hljs-number">0.9</span>], <span class="hljs-string">'FaceColor'</span>,<span class="hljs-string">'none'</span>,<span class="hljs-string">'EdgeColor'</span>,<span class="hljs-string">'interp'</span>);
+    patch([x1+orthVec(<span class="hljs-number">1</span>)+dispVec(<span class="hljs-number">1</span>), x0+orthVec(<span class="hljs-number">1</span>)+dispVec(<span class="hljs-number">1</span>)], [y1+orthVec(<span class="hljs-number">2</span>)+dispVec(<span class="hljs-number">2</span>), y0+orthVec(<span class="hljs-number">2</span>)+dispVec(<span class="hljs-number">2</span>)], [<span class="hljs-number">0.1</span>, <span class="hljs-number">0.9</span>], <span class="hljs-string">'FaceColor'</span>,<span class="hljs-string">'none'</span>,<span class="hljs-string">'EdgeColor'</span>,<span class="hljs-string">'interp'</span>);
+    <span class="hljs-comment">% set new fields</span>
+    roadArray(idx).xyStart = [x0, y0] - dispVec - <span class="hljs-number">0.5</span> .* orthVec;
+    roadArray(idx).vec = [x1-x0, y1-y0];
+    imageIdx = roadArray(idx).imageRoad;
+    roadArray(imageIdx).xyStart = [x1, y1] + dispVec + <span class="hljs-number">0.5</span> .* orthVec;
+    roadArray(imageIdx).vec = -[x1-x0, y1-y0];
+    nodeArray(roadArray(idx).nodeStart).xy = [x0, y0];
+    nodeArray(roadArray(idx).nodeEnd).xy = [x1, y1];
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: return a color based on speed</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[res]</span> = <span class="hljs-title">Velocity2Color</span><span class="hljs-params">(speed)</span></span>
+
+    <span class="hljs-keyword">persistent</span> carColor gap
+    
+    <span class="hljs-keyword">if</span> <span class="hljs-built_in">isempty</span>(carColor)
+        carColor = parula(<span class="hljs-number">102</span>);
+        gap = vmax / <span class="hljs-number">100</span>;
+    <span class="hljs-keyword">end</span>
+
+    res = carColor(<span class="hljs-built_in">floor</span>(speed / gap)+<span class="hljs-number">1</span>, :);
+<span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment">% END of TrafficVisualization.m</span>
+
+</div></code></pre>
+
+    </body>
+    </html>
