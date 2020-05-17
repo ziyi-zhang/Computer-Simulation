@@ -70,7 +70,7 @@ end
 - Only activated cells are plotted in 3D
 - Color indicates the distance to the **center** of the simulation box. It helps us understand the relative spatial location of alive cells when the pattern get complicated.
 
-![ff](1.png)
+![ff1](1.png)
 
 ***
 

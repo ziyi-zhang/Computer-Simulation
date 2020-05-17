@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title><p style='text-align: right;'> 330 Computer Simulation - Project 3 Report<br/> Ziyi Zhang - zz2463<br/> May 8, 2020 </p></title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+    </head>
+    <body class="vscode-light">
+        <link href="style.css" rel="stylesheet"></link>
+<h4 id="p-styletext-align-right-330-computer-simulation---project-3-reportbr-ziyi-zhang---zz2463br-may-8-2020-p"><p style='text-align: right;'> 330 Computer Simulation - Project 3 Report<br/> Ziyi Zhang - zz2463<br/> May 8, 2020 </p></h4>
+<hr>
+<h3 id="1-introduction">1. Introduction</h3>
+<p>This project aims to simulate the cellular automata in 3D. The code is optimized for speed and better visualization effects. The attempt to auralize the result failed.</p>
+<hr>
+<h3 id="2-equations-and-numerical-methods">2. Equations and Numerical Methods</h3>
+<h4 id="21-update-rule">2.1 Update rule</h4>
+<h4 id="211-theoretical-equations">2.1.1 Theoretical Equations</h4>
+<p>There are two states for each cell, dead or activated, represented by 0 and 1. At each tick, the state is determined by the six nearest neighbours: front, back, left, right, top and bottom. Every possible combination of the states of those six neighbours leads to one result, which can be illustrated by the following example:</p>
+<p>Let <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span> be a boolean vector of length <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn></mrow><annotation encoding="application/x-tex">6</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">6</span></span></span></span> representing the state of six neighbours.</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>New State </mtext><mo>=</mo><mtext> </mtext><mrow><mo fence="true">{</mo><mtable rowspacing="0.3599999999999999em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mn>0</mn><mtext>    </mtext><mrow><mtext>,              if </mtext><mstyle scriptlevel="0" displaystyle="false"><mi>n</mi><mo>=</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo stretchy="false">]</mo></mstyle></mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mn>0</mn><mi mathvariant="normal">/</mi><mn>1</mn><mrow><mtext>,              if </mtext><mstyle scriptlevel="0" displaystyle="false"><mi>n</mi><mo>=</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">]</mo></mstyle></mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mo lspace="0em" rspace="0em">⋯</mo></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mn>0</mn><mi mathvariant="normal">/</mi><mn>1</mn><mrow><mtext>,              if </mtext><mstyle scriptlevel="0" displaystyle="false"><mi>n</mi><mo>=</mo><mo stretchy="false">[</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>0</mn><mo stretchy="false">]</mo></mstyle></mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mn>0</mn><mi mathvariant="normal">/</mi><mn>1</mn><mrow><mtext>,              if </mtext><mstyle scriptlevel="0" displaystyle="false"><mi>n</mi><mo>=</mo><mo stretchy="false">[</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">]</mo></mstyle></mrow></mrow></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\text{New State}~ = ~
+\begin{cases}
+    0~~~~\text{,~~~~~~~~~~~~~~if $n=[0,0,0,0,0,0]$} \\
+    0/1\text{,~~~~~~~~~~~~~~if $n=[0,0,0,0,0,1]$} \\
+    \cdots \\
+    0/1\text{,~~~~~~~~~~~~~~if $n=[1,1,1,1,1,0]$} \\
+    0/1\text{,~~~~~~~~~~~~~~if $n=[1,1,1,1,1,1]$} \\
+\end{cases}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:7.2000399999999996em;vertical-align:-3.3500199999999998em;"></span><span class="mord text"><span class="mord">New State</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mspace nobreak"> </span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mspace nobreak"> </span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:3.85002em;"><span style="top:-0.6999900000000001em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎩</span></span></span><span style="top:-0.6949900000000002em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-0.9899900000000001em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-1.2849900000000003em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-1.5799900000000004em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-1.8749900000000006em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-2.1699900000000008em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-2.2049900000000004em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-3.1500100000000004em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎨</span></span></span><span style="top:-4.29501em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-4.59001em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-4.885010000000001em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-5.180010000000001em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-5.475010000000001em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-5.770010000000001em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-5.80501em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎪</span></span></span><span style="top:-6.10002em;"><span class="pstrut" style="height:3.15em;"></span><span class="delimsizinginner delim-size4"><span>⎧</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:3.3500199999999998em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:3.8500000000000005em;"><span style="top:-5.850000000000001em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">0</span><span class="mspace nobreak"> </span><span class="mspace nobreak"> </span><span class="mspace nobreak"> </span><span class="mspace nobreak"> </span><span class="mord text"><span class="mord">,</span><span class="mord nobreak">              </span><span class="mord">if </span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mclose">]</span></span></span></span><span style="top:-4.410000000000001em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">0</span><span class="mord">/</span><span class="mord">1</span><span class="mord text"><span class="mord">,</span><span class="mord nobreak">              </span><span class="mord">if </span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mclose">]</span></span></span></span><span style="top:-2.9700000000000006em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="minner">⋯</span></span></span><span style="top:-1.5300000000000002em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">0</span><span class="mord">/</span><span class="mord">1</span><span class="mord text"><span class="mord">,</span><span class="mord nobreak">              </span><span class="mord">if </span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mopen">[</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mclose">]</span></span></span></span><span style="top:-0.08999999999999997em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">0</span><span class="mord">/</span><span class="mord">1</span><span class="mord text"><span class="mord">,</span><span class="mord nobreak">              </span><span class="mord">if </span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mopen">[</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mclose">]</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:3.35em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>where</p>
+<ul>
+<li>There are <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>6</mn></msup><mo>−</mo><mn>1</mn><mo>=</mo><mn>63</mn></mrow><annotation encoding="application/x-tex">2^6-1=63</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.897438em;vertical-align:-0.08333em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">6</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">6</span><span class="mord">3</span></span></span></span> possible update rules.</li>
+<li>If there is no activated cells nearby, the central cell will stay dormant.</li>
+</ul>
+<h4 id="212-numerical-methods">2.1.2 Numerical Methods</h4>
+<p><strong>Grid</strong> is a 3D matrix recording the state of neighbouring cells. Each state can be represented by an integer if we interprete <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span> as a binary number. For example, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">n=[0,1,1,0,0,1]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">1</span><span class="mclose">]</span></span></span></span> is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>25</mn></mrow><annotation encoding="application/x-tex">25</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mord">5</span></span></span></span> and we only need to look up the 25th element in the vector <strong>rule</strong> to decide whether this cell should be alive or not.<br>
+All of these can be done in one single line in parallel.</p>
+<pre><code class="language-MATLAB"><div>newState = rule(grid + <span class="hljs-number">1</span>);  <span class="hljs-comment">% apply the rule based on the neighbors</span>
+</div></code></pre>
+<p>But we also need to update the <strong>Grid</strong> matrix by tracking the cells that just changed their state.<br>
+I wrote two helper functions here <strong>Activate</strong> and <strong>Deactivate</strong> that updates the <strong>Grid</strong> matrix based on the index of the cells that changed state.</p>
+<pre><code class="language-MATLAB"><div><span class="hljs-comment">% activate &amp; deactivate cells</span>
+activateList = <span class="hljs-built_in">find</span>((state == <span class="hljs-number">0</span>) &amp; (newState == <span class="hljs-number">1</span>));
+deactivateList = <span class="hljs-built_in">find</span>((state == <span class="hljs-number">1</span>) &amp; (newState == <span class="hljs-number">0</span>));
+state = newState;  <span class="hljs-comment">% Update state</span>
+Activate(idx2xyz(activateList));
+Deactivate(idx2xyz(deactivateList));
+</div></code></pre>
+<h4 id="23-how-does-the-simulation-work">2.3 How does the simulation work?</h4>
+<p>Is is fairly straghtforward,</p>
+<pre><code class="language-MATLAB"><div><span class="hljs-keyword">for</span> it = <span class="hljs-number">1</span>:MaxIteration
+
+    <span class="hljs-comment">% wait 300ms</span>
+    pause(pauseTime);
+    
+    <span class="hljs-comment">% Update the figure</span>
+    UpdatePlot();
+    <span class="hljs-comment">% Update the cells (in parallel)</span>
+    UpdateCell();
+<span class="hljs-keyword">end</span>
+</div></code></pre>
+<ul>
+<li>UpdatePlot: Update the 3D figure based on the states of cells at this tick.</li>
+<li>UpdateCell: Update the states of the cells using the methods in 2.1.2.</li>
+</ul>
+<hr>
+<h3 id="3-visualization-interpretation">3. Visualization Interpretation</h3>
+<ul>
+<li>Only activated cells are plotted in 3D</li>
+<li>Color indicates the distance to the <strong>center</strong> of the simulation box. It helps us understand the relative spatial location of alive cells when the pattern get complicated.</li>
+</ul>
+<p><img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project3/report/1.png" alt="ff1"></p>
+<hr>
+<h3 id="4-tests">4. Tests</h3>
+<p>We do not need to worry about &quot;dt&quot; in this project. The cells are updated by tick anyway.<br>
+Based on the visual effects, I believe the program is properly coded.</p>
+<hr>
+<h3 id="5-results">5. Results</h3>
+<p>For this project, I really cannot illustrate the result in a PDF file. The growth of the cells is terrific in the 3D movie and the only thing I can do is to take a few screenshots here. Appendix A has detailed information about how to run the code in your own machine. You can rotate and pan arbitrarily in MATLAB.</p>
+<ul>
+<li>We have a growing 3D pyramid
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project3/report/2.png" alt="ff"></li>
+<li>dynamic equilibrium of a cube
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project3/report/3.png" alt="ff"></li>
+<li>dynamic fractals
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project3/report/4.png" alt="ff"></li>
+<li>neon light pattern (run <em>runCellularAutomata3D_5.m</em> to see dynamic effects)
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project3/report/5.png" alt="ff"></li>
+<li>fancy one with 30 randomly generated initial cells
+<img src="file:////Users/ziyizhang/Desktop/NYU/CSCI 330/Computer Simulation/Project3/report/6.png" alt="ff"></li>
+</ul>
+<h4 id="51-conclusion">5.1 Conclusion</h4>
+<p>The whole point of cellular automata is to prove that very simple rules can lead to infinite complicated results. It is the case here. A slight modification of the input will generate completely different movies.</p>
+<hr>
+<h3 id="6-sound">6. Sound</h3>
+<p>I tried to generate some sounds with the work here, as inspired by a wonderful presentation in class.<br>
+But it does not work. I only get some random noise.<br>
+Well, it also makes sense because we are not designing the system to understand music. All it outputs is random results.</p>
+<p>I decided not to include the sound part in this project. It is a great implementation of 3D version cellular automata.</p>
+<hr>
+<h3 id="6-reference">6. Reference</h3>
+<p>None.<br>
+I started this project from scratch. I coded every single line on my own. It took me a lot of time.</p>
+<hr>
+<h3 id="appendix-a-how-to-run-the-code">Appendix A How to run the code</h3>
+<p>You can run the code in real time, with any setup. Example:</p>
+<pre><code class="language-MATLAB"><div>&gt;&gt; runCellularAutomata3D_1.m
+</div></code></pre>
+<ul>
+<li>There are a few other scripts with different setups. Feel free to play with them.</li>
+<li>You can also create your own 'runCellularAutomata3D_x' script with arbitary rule/init to play around with the system.</li>
+</ul>
+<hr>
+<h3 id="appendix-b-runcellularautomata3d1m">Appendix B runCellularAutomata3D_1.m</h3>
+<pre><code class="language-MATLAB"><div><span class="hljs-comment">% runCellularAutomata3D_1</span>
+
+clear o
+o.<span class="hljs-built_in">size</span> = <span class="hljs-number">40</span>;  <span class="hljs-comment">% N*N*N grid</span>
+o.init = [<span class="hljs-number">19</span>, <span class="hljs-number">21</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>;...
+          <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">19</span>, <span class="hljs-number">21</span>;...
+          <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>];  <span class="hljs-comment">% initially activated cells</span>
+rng(<span class="hljs-number">3</span>)
+o.rule = randi(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>, <span class="hljs-number">64</span>)<span class="hljs-number">-1</span>;  <span class="hljs-comment">% 64 bits 0/1</span>
+o.it = <span class="hljs-number">100</span>;  <span class="hljs-comment">% number of iterations</span>
+CellularAutomata3D(o);
+
+</div></code></pre>
+<hr>
+<h3 id="appendix-c-cellularautomata3dm">Appendix C CellularAutomata3D.m</h3>
+<pre><code class="language-MATLAB"><div><span class="hljs-comment">% Main Simulation File</span>
+<span class="hljs-comment">% Ziyi. May, 2020.</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">CellularAutomata3D</span><span class="hljs-params">(o)</span></span>
+
+<span class="hljs-comment">%% Phase input variables</span>
+size_ = o.<span class="hljs-built_in">size</span>;
+init = o.init;
+rule = o.rule;
+assert(<span class="hljs-built_in">length</span>(rule) == <span class="hljs-number">64</span>);
+assert(nnz(rule == <span class="hljs-number">0</span> | rule == <span class="hljs-number">1</span>) == <span class="hljs-number">64</span>);
+MaxIteration = o.it;
+
+<span class="hljs-comment">%% Initialization</span>
+rule(<span class="hljs-number">1</span>) = <span class="hljs-number">0</span>;  <span class="hljs-comment">% if no cell around, stay deactivated</span>
+grid_ = <span class="hljs-built_in">zeros</span>(size_, size_, size_);
+state = <span class="hljs-built_in">zeros</span>(size_, size_, size_);
+<span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span> = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(init, <span class="hljs-number">2</span>)
+    Activate(init(<span class="hljs-number">1</span>, <span class="hljs-built_in">i</span>), init(<span class="hljs-number">2</span>, <span class="hljs-built_in">i</span>), init(<span class="hljs-number">3</span>, <span class="hljs-built_in">i</span>));
+    state(init(<span class="hljs-number">1</span>, <span class="hljs-built_in">i</span>), init(<span class="hljs-number">2</span>, <span class="hljs-built_in">i</span>), init(<span class="hljs-number">3</span>, <span class="hljs-built_in">i</span>)) = <span class="hljs-number">1</span>;
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment">%% Plot</span>
+<span class="hljs-built_in">figure</span>
+<span class="hljs-built_in">hold</span> on
+h = <span class="hljs-built_in">scatter3</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-string">'filled'</span>);
+axis([<span class="hljs-number">0</span> size_+<span class="hljs-number">1</span> <span class="hljs-number">0</span> size_+<span class="hljs-number">1</span> <span class="hljs-number">0</span> size_+<span class="hljs-number">1</span>]);
+pbaspect([<span class="hljs-number">1</span> <span class="hljs-number">1</span> <span class="hljs-number">1</span>]);
+view(<span class="hljs-number">3</span>);
+grid on
+set(gcf, <span class="hljs-string">'Position'</span>,  [<span class="hljs-number">200</span>, <span class="hljs-number">200</span>, <span class="hljs-number">800</span>, <span class="hljs-number">800</span>])
+
+<span class="hljs-comment">%% Start simulation</span>
+pauseTime = <span class="hljs-number">0.3</span>;
+<span class="hljs-keyword">for</span> it = <span class="hljs-number">1</span>:MaxIteration
+
+    pause(pauseTime);
+    
+    <span class="hljs-comment">% Update the figure</span>
+    UpdatePlot();
+    <span class="hljs-comment">% Update the cells (in parallel)</span>
+    UpdateCell();
+<span class="hljs-keyword">end</span>
+<span class="hljs-built_in">disp</span>(<span class="hljs-string">"CellularAutomata3D Done."</span>);
+
+<span class="hljs-comment">%==========================================================================</span>
+
+<span class="hljs-comment">%% nested function: Activate one cell</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">Activate</span><span class="hljs-params">(i, j, k)</span></span>
+    
+    <span class="hljs-comment">% front</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">i</span>&lt;size_)
+        grid_(<span class="hljs-built_in">i</span>+<span class="hljs-number">1</span>, <span class="hljs-built_in">j</span>, k) = grid_(<span class="hljs-built_in">i</span>+<span class="hljs-number">1</span>, <span class="hljs-built_in">j</span>, k)+<span class="hljs-number">4</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% right</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">j</span>&lt;size_)
+        grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>+<span class="hljs-number">1</span>, k) = grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>+<span class="hljs-number">1</span>, k)+<span class="hljs-number">8</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% back</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">i</span>&gt;<span class="hljs-number">1</span>)
+        grid_(<span class="hljs-built_in">i</span><span class="hljs-number">-1</span>, <span class="hljs-built_in">j</span>, k) = grid_(<span class="hljs-built_in">i</span><span class="hljs-number">-1</span>, <span class="hljs-built_in">j</span>, k)+<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% left</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">j</span>&gt;<span class="hljs-number">1</span>)
+        grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span><span class="hljs-number">-1</span>, k) = grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span><span class="hljs-number">-1</span>, k)+<span class="hljs-number">2</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% up</span>
+    <span class="hljs-keyword">if</span> (k&lt;size_)
+        grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, k+<span class="hljs-number">1</span>) = grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, k+<span class="hljs-number">1</span>)+<span class="hljs-number">16</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% down</span>
+    <span class="hljs-keyword">if</span> (k&gt;<span class="hljs-number">1</span>)
+        grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, k<span class="hljs-number">-1</span>) = grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, k<span class="hljs-number">-1</span>)+<span class="hljs-number">32</span>;
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: Deactivate one cell</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">Deactivate</span><span class="hljs-params">(i, j, k)</span></span>
+    
+    <span class="hljs-comment">% front</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">i</span>&lt;size_)
+        grid_(<span class="hljs-built_in">i</span>+<span class="hljs-number">1</span>, <span class="hljs-built_in">j</span>, k) = grid_(<span class="hljs-built_in">i</span>+<span class="hljs-number">1</span>, <span class="hljs-built_in">j</span>, k)<span class="hljs-number">-4</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% right</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">j</span>&lt;size_)
+        grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>+<span class="hljs-number">1</span>, k) = grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>+<span class="hljs-number">1</span>, k)<span class="hljs-number">-8</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% back</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">i</span>&gt;<span class="hljs-number">1</span>)
+        grid_(<span class="hljs-built_in">i</span><span class="hljs-number">-1</span>, <span class="hljs-built_in">j</span>, k) = grid_(<span class="hljs-built_in">i</span><span class="hljs-number">-1</span>, <span class="hljs-built_in">j</span>, k)<span class="hljs-number">-1</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% left</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">j</span>&gt;<span class="hljs-number">1</span>)
+        grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span><span class="hljs-number">-1</span>, k) = grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span><span class="hljs-number">-1</span>, k)<span class="hljs-number">-2</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% up</span>
+    <span class="hljs-keyword">if</span> (k&lt;size_)
+        grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, k+<span class="hljs-number">1</span>) = grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, k+<span class="hljs-number">1</span>)<span class="hljs-number">-16</span>;
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment">% down</span>
+    <span class="hljs-keyword">if</span> (k&gt;<span class="hljs-number">1</span>)
+        grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, k<span class="hljs-number">-1</span>) = grid_(<span class="hljs-built_in">i</span>, <span class="hljs-built_in">j</span>, k<span class="hljs-number">-1</span>)<span class="hljs-number">-32</span>;
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: Transform 1D index to {x, y, z} index</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[res]</span> = <span class="hljs-title">idx2xyz</span><span class="hljs-params">(list)</span></span>
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">size</span>(list, <span class="hljs-number">1</span>)~=<span class="hljs-number">1</span>), list = list';<span class="hljs-keyword">end</span>
+    t = <span class="hljs-built_in">mod</span>(list, size_*size_);  <span class="hljs-comment">% used to determine x and y</span>
+    t = t - <span class="hljs-number">1</span>;
+    t(t &lt; <span class="hljs-number">0</span>) = size_ * size_ - <span class="hljs-number">1</span>;
+    <span class="hljs-comment">% x = mod(t, size_) + 1</span>
+    <span class="hljs-comment">% y = ceil((t+1) / size_)</span>
+    res = [<span class="hljs-built_in">mod</span>(t, size_) + <span class="hljs-number">1</span>; <span class="hljs-built_in">ceil</span>((t+<span class="hljs-number">1</span>) / size_); <span class="hljs-built_in">ceil</span>(list/(size_*size_))];
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: implemented with parallel computation</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">UpdatePlot</span><span class="hljs-params">()</span></span>
+
+    <span class="hljs-keyword">persistent</span> cmap
+    <span class="hljs-keyword">if</span> <span class="hljs-built_in">isempty</span>(cmap)
+        cmap = parula(<span class="hljs-number">102</span>);
+    <span class="hljs-keyword">end</span>
+
+    acList = <span class="hljs-built_in">find</span>(state);  <span class="hljs-comment">% who is activated now</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-built_in">isempty</span>(acList), it=MaxIteration;<span class="hljs-keyword">end</span>
+    xyzList = idx2xyz(acList);
+    dist = sum((xyzList - size_/<span class="hljs-number">2</span>).^<span class="hljs-number">2</span>);  <span class="hljs-comment">% distance, used to determine color</span>
+    dist = <span class="hljs-built_in">sqrt</span>(dist) ./ (size_/<span class="hljs-number">2</span> * <span class="hljs-number">1.74</span>);
+    
+    set(h, <span class="hljs-string">'xdata'</span>, xyzList(<span class="hljs-number">1</span>, :), <span class="hljs-string">'ydata'</span>, xyzList(<span class="hljs-number">2</span>, :), <span class="hljs-string">'zdata'</span>, xyzList(<span class="hljs-number">3</span>, :), <span class="hljs-string">'cdata'</span>, cmap(<span class="hljs-built_in">floor</span>(dist / <span class="hljs-number">0.01</span>)+<span class="hljs-number">1</span>, :));
+<span class="hljs-keyword">end</span>
+
+
+<span class="hljs-comment">%% nested function: update cell activity</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[]</span> = <span class="hljs-title">UpdateCell</span><span class="hljs-params">()</span></span>
+
+    newState = rule(grid_ + <span class="hljs-number">1</span>);  <span class="hljs-comment">% apply rule based on neighbors</span>
+    <span class="hljs-comment">% activate &amp; deactivate</span>
+    activateList = <span class="hljs-built_in">find</span>((state == <span class="hljs-number">0</span>) &amp; (newState == <span class="hljs-number">1</span>));
+    deactivateList = <span class="hljs-built_in">find</span>((state == <span class="hljs-number">1</span>) &amp; (newState == <span class="hljs-number">0</span>));
+    state = newState;
+    xyzList = idx2xyz(activateList);
+    <span class="hljs-keyword">for</span> ii = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(xyzList, <span class="hljs-number">2</span>)
+        Activate(xyzList(<span class="hljs-number">1</span>, ii), xyzList(<span class="hljs-number">2</span>, ii), xyzList(<span class="hljs-number">3</span>, ii));
+    <span class="hljs-keyword">end</span>
+    xyzList = idx2xyz(deactivateList);
+    <span class="hljs-keyword">for</span> ii = <span class="hljs-number">1</span>:<span class="hljs-built_in">size</span>(xyzList, <span class="hljs-number">2</span>)
+        Deactivate(xyzList(<span class="hljs-number">1</span>, ii), xyzList(<span class="hljs-number">2</span>, ii), xyzList(<span class="hljs-number">3</span>, ii));
+    <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment">% End of CellularAutomata3D.m</span>
+</div></code></pre>
+
+    </body>
+    </html>
